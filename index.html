@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seoul Gallery Map — 서울 갤러리 전시공간 지도</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+
+  <!-- ══ HEADER ══ -->
+  <header>
+    <div class="header-left">
+      <span class="logo">SEOUL GALLERY MAP</span>
+      <span class="logo-sub">전시공간 대관 가이드</span>
+    </div>
+    <div class="header-right">
+      <div class="header-stat">
+        <strong id="total-count">30</strong>
+        총 전시공간
+      </div>
+      <div class="header-stat">
+        <strong>12</strong>
+        조사 지역구
+      </div>
+      <button class="tool-btn" id="all-view-btn" title="전체 목록 보기" style="width:auto;padding:0 12px;font-size:11px;gap:5px;letter-spacing:0.05em;">
+        ☰ 전체 목록
+      </button>
+    </div>
+  </header>
+
+  <!-- ══ MAP ══ -->
+  <main class="map-area" style="grid-column:2;grid-row:2;">
+    <div class="map-bg-label">SEOUL</div>
+    <div class="legend">
+      <div class="legend-item"><span class="legend-dot data"></span>갤러리 있음</div>
+      <div class="legend-item"><span class="legend-dot nodata"></span>데이터 없음</div>
+      <div class="legend-item"><span class="legend-dot active"></span>선택됨</div>
+    </div>
+
+    <!-- Seoul District SVG Map -->
+    <svg id="seoul-map" viewBox="10 20 460 360" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+          <feMerge><feMergeNode in="coloredBlur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+
+      <!-- ── 은평구 (Eunpyeong) ── -->
+      <g class="district-group" data-district="은평구" id="d-eunpyeong">
+        <path class="district-path" d="M 95 80 L 150 65 L 185 75 L 200 110 L 190 145 L 165 160 L 130 155 L 100 135 L 85 110 Z"/>
+        <text class="district-label-text" x="143" y="115">은평구</text>
+        <circle class="district-dot" cx="160" cy="100" r="3"/>
+      </g>
+
+      <!-- ── 도봉구 (Dobong) ── -->
+      <g class="district-group" data-district="도봉구" id="d-dobong">
+        <path class="district-path" d="M 230 30 L 295 25 L 320 55 L 310 85 L 280 95 L 250 88 L 220 70 L 215 50 Z"/>
+        <text class="district-label-text" x="265" y="62">도봉구</text>
+        <circle class="district-dot" cx="280" cy="50" r="3"/>
+      </g>
+
+      <!-- ── 노원구 (Nowon) ── -->
+      <g class="district-group" data-district="노원구" id="d-nowon">
+        <path class="district-path" d="M 295 25 L 375 30 L 395 60 L 380 90 L 350 100 L 320 95 L 310 85 L 320 55 Z"/>
+        <text class="district-label-text" x="348" y="65">노원구</text>
+        <circle class="district-dot" cx="360" cy="55" r="3"/>
+      </g>
+
+      <!-- ── 강북구 (Gangbuk) ── -->
+      <g class="district-group has-data" data-district="강북구" id="d-gangbuk">
+        <path class="district-path" d="M 215 50 L 250 88 L 280 95 L 295 110 L 270 130 L 240 128 L 210 115 L 195 95 L 200 70 Z"/>
+        <text class="district-label-text" x="245" y="100">강북구</text>
+        <circle class="district-dot" cx="262" cy="88" r="3"/>
+      </g>
+
+      <!-- ── 성북구 (Seongbuk) ── -->
+      <g class="district-group" data-district="성북구" id="d-seongbuk">
+        <path class="district-path" d="M 270 130 L 295 110 L 330 108 L 360 115 L 370 140 L 355 165 L 325 170 L 295 160 L 272 148 Z"/>
+        <text class="district-label-text" x="320" y="140">성북구</text>
+        <circle class="district-dot" cx="330" cy="130" r="3"/>
+      </g>
+
+      <!-- ── 종로구 (Jongno) ── -->
+      <g class="district-group has-data" data-district="종로구" id="d-jongno">
+        <path class="district-path" d="M 165 160 L 190 145 L 210 155 L 240 128 L 270 130 L 272 148 L 258 175 L 235 190 L 205 195 L 180 180 Z"/>
+        <text class="district-label-text" x="220" y="163">종로구</text>
+        <circle class="district-dot" cx="230" cy="152" r="3"/>
+      </g>
+
+      <!-- ── 동대문구 (Dongdaemun) ── -->
+      <g class="district-group" data-district="동대문구" id="d-dongdaemun">
+        <path class="district-path" d="M 325 170 L 355 165 L 390 170 L 400 195 L 385 215 L 360 220 L 335 210 L 318 190 Z"/>
+        <text class="district-label-text" x="360" y="193">동대문구</text>
+        <circle class="district-dot" cx="370" cy="180" r="3"/>
+      </g>
+
+      <!-- ── 중구 (Jung) ── -->
+      <g class="district-group has-data" data-district="중구" id="d-jung">
+        <path class="district-path" d="M 205 195 L 235 190 L 258 175 L 285 185 L 290 210 L 275 228 L 250 232 L 228 220 L 210 208 Z"/>
+        <text class="district-label-text" x="250" y="207">중구</text>
+        <circle class="district-dot" cx="252" cy="197" r="3"/>
+      </g>
+
+      <!-- ── 성동구 (Seongdong) ── -->
+      <g class="district-group has-data" data-district="성동구" id="d-seongdong">
+        <path class="district-path" d="M 285 185 L 318 190 L 335 210 L 360 220 L 368 245 L 348 262 L 318 268 L 295 255 L 278 238 L 275 228 L 290 210 Z"/>
+        <text class="district-label-text" x="323" y="228">성동구</text>
+        <circle class="district-dot" cx="332" cy="218" r="3"/>
+      </g>
+
+      <!-- ── 서대문구 (Seodaemun) ── -->
+      <g class="district-group" data-district="서대문구" id="d-seodaemun">
+        <path class="district-path" d="M 130 155 L 165 160 L 180 180 L 170 205 L 148 215 L 120 210 L 108 190 L 112 168 Z"/>
+        <text class="district-label-text" x="148" y="185">서대문구</text>
+        <circle class="district-dot" cx="150" cy="175" r="3"/>
+      </g>
+
+      <!-- ── 마포구 (Mapo) ── -->
+      <g class="district-group has-data" data-district="마포구" id="d-mapo">
+        <path class="district-path" d="M 100 135 L 130 155 L 112 168 L 108 190 L 120 210 L 105 228 L 80 235 L 65 215 L 68 190 L 80 165 Z"/>
+        <text class="district-label-text" x="95" y="190">마포구</text>
+        <circle class="district-dot" cx="98" cy="178" r="3"/>
+      </g>
+
+      <!-- ── 용산구 (Yongsan) ── -->
+      <g class="district-group has-data" data-district="용산구" id="d-yongsan">
+        <path class="district-path" d="M 170 205 L 205 195 L 210 208 L 228 220 L 250 232 L 255 250 L 238 268 L 215 272 L 193 262 L 175 245 L 168 228 Z"/>
+        <text class="district-label-text" x="213" y="237">용산구</text>
+        <circle class="district-dot" cx="215" cy="225" r="3"/>
+      </g>
+
+      <!-- ── 광진구 (Gwangjin) ── -->
+      <g class="district-group has-data" data-district="광진구" id="d-gwangjin">
+        <path class="district-path" d="M 368 245 L 398 248 L 420 265 L 418 290 L 398 305 L 370 300 L 350 282 L 348 262 Z"/>
+        <text class="district-label-text" x="384" y="275">광진구</text>
+        <circle class="district-dot" cx="390" cy="262" r="3"/>
+      </g>
+
+      <!-- ── 강서구 (Gangseo) ── -->
+      <g class="district-group" data-district="강서구" id="d-gangseo">
+        <path class="district-path" d="M 30 210 L 65 215 L 80 235 L 72 265 L 55 285 L 30 290 L 18 270 L 15 245 L 22 225 Z"/>
+        <text class="district-label-text" x="47" y="253">강서구</text>
+        <circle class="district-dot" cx="50" cy="240" r="3"/>
+      </g>
+
+      <!-- ── 양천구 (Yangcheon) ── -->
+      <g class="district-group" data-district="양천구" id="d-yangcheon">
+        <path class="district-path" d="M 65 215 L 105 228 L 110 252 L 98 272 L 72 275 L 55 258 L 55 240 Z"/>
+        <text class="district-label-text" x="83" y="250">양천구</text>
+        <circle class="district-dot" cx="85" cy="238" r="3"/>
+      </g>
+
+      <!-- ── 영등포구 (Yeongdeungpo) ── -->
+      <g class="district-group has-data" data-district="영등포구" id="d-yeongdeungpo">
+        <path class="district-path" d="M 105 228 L 148 215 L 168 228 L 175 245 L 162 268 L 140 278 L 115 272 L 100 255 L 98 242 Z"/>
+        <text class="district-label-text" x="135" y="250">영등포구</text>
+        <circle class="district-dot" cx="138" cy="238" r="3"/>
+      </g>
+
+      <!-- ── 동작구 (Dongjak) ── -->
+      <g class="district-group has-data" data-district="동작구" id="d-dongjak">
+        <path class="district-path" d="M 140 278 L 162 268 L 175 245 L 193 262 L 195 282 L 180 302 L 158 308 L 138 298 L 130 282 Z"/>
+        <text class="district-label-text" x="163" y="285">동작구</text>
+        <circle class="district-dot" cx="166" cy="273" r="3"/>
+      </g>
+
+      <!-- ── 관악구 (Gwanak) ── -->
+      <g class="district-group" data-district="관악구" id="d-gwanak">
+        <path class="district-path" d="M 130 282 L 158 308 L 160 330 L 145 348 L 120 350 L 98 338 L 90 315 L 100 295 L 118 285 Z"/>
+        <text class="district-label-text" x="128" y="320">관악구</text>
+        <circle class="district-dot" cx="130" cy="308" r="3"/>
+      </g>
+
+      <!-- ── 서초구 (Seocho) ── -->
+      <g class="district-group has-data" data-district="서초구" id="d-seocho">
+        <path class="district-path" d="M 180 302 L 195 282 L 215 272 L 238 268 L 255 280 L 268 305 L 262 335 L 245 352 L 220 358 L 195 348 L 175 330 L 168 310 Z"/>
+        <text class="district-label-text" x="220" y="315">서초구</text>
+        <circle class="district-dot" cx="222" cy="302" r="3"/>
+      </g>
+
+      <!-- ── 강남구 (Gangnam) ── -->
+      <g class="district-group has-data" data-district="강남구" id="d-gangnam">
+        <path class="district-path" d="M 255 280 L 278 268 L 295 255 L 318 268 L 340 280 L 355 305 L 350 330 L 332 350 L 305 358 L 278 352 L 262 335 L 268 305 Z"/>
+        <text class="district-label-text" x="307" y="313">강남구</text>
+        <circle class="district-dot" cx="307" cy="300" r="3"/>
+      </g>
+
+      <!-- ── 송파구 (Songpa) ── -->
+      <g class="district-group" data-district="송파구" id="d-songpa">
+        <path class="district-path" d="M 350 282 L 370 300 L 398 305 L 415 325 L 410 355 L 390 370 L 362 368 L 338 355 L 332 330 L 350 305 Z"/>
+        <text class="district-label-text" x="375" y="332">송파구</text>
+        <circle class="district-dot" cx="378" cy="318" r="3"/>
+      </g>
+
+      <!-- ── 강동구 (Gangdong) ── -->
+      <g class="district-group has-data" data-district="강동구" id="d-gangdong">
+        <path class="district-path" d="M 398 305 L 430 295 L 458 305 L 465 330 L 452 355 L 425 368 L 410 358 L 415 325 Z"/>
+        <text class="district-label-text" x="432" y="330">강동구</text>
+        <circle class="district-dot" cx="435" cy="315" r="3"/>
+      </g>
+
+      <!-- ── 중랑구 (Jungnang) ── -->
+      <g class="district-group" data-district="중랑구" id="d-jungnang">
+        <path class="district-path" d="M 370 140 L 405 145 L 430 165 L 435 195 L 420 215 L 400 220 L 385 215 L 390 170 Z"/>
+        <text class="district-label-text" x="407" y="182">중랑구</text>
+        <circle class="district-dot" cx="408" cy="168" r="3"/>
+      </g>
+
+      <!-- 한강 표시 (decorative) -->
+      <path d="M 65 255 Q 120 248 175 255 Q 230 262 290 255 Q 350 248 415 255 Q 460 260 500 258"
+            fill="none" stroke="rgba(90,158,224,0.25)" stroke-width="8" stroke-linecap="round"/>
+      <text x="480" y="248" font-size="9" fill="rgba(90,158,224,0.4)" font-family="'Noto Sans KR',sans-serif">한강</text>
+    </svg>
+
+    <div class="map-hint">구를 클릭하면 갤러리 정보가 표시됩니다</div>
+
+    <!-- Toolbar -->
+    <div class="map-toolbar">
+      <button class="tool-btn" id="reset-btn" title="선택 초기화">✕</button>
+    </div>
+  </main>
+
+  <!-- ══ SIDE PANEL ══ -->
+  <aside class="panel" id="panel">
+
+    <!-- Empty state -->
+    <div class="panel-empty" id="panel-empty">
+      <div class="panel-empty-icon">🗺</div>
+      <h3>지역구를 선택하세요</h3>
+      <p>지도에서 원하는 구를 클릭하면<br>해당 지역의 갤러리 전시공간<br>대관 정보를 확인할 수 있습니다.</p>
+    </div>
+
+    <!-- District detail -->
+    <div id="panel-detail" style="display:none;flex-direction:column;flex:1;min-height:0;overflow:hidden;">
+
+      <div class="panel-header" id="panel-header">
+        <div class="panel-district-name">
+          <h2 id="panel-title">—</h2>
+          <button class="close-btn" id="close-btn">✕</button>
+        </div>
+        <div class="panel-meta" id="panel-meta"></div>
+      </div>
+
+      <div class="panel-search" id="panel-search">
+        <div class="search-row">
+          <div class="search-input-wrap">
+            <span class="ico">🔍</span>
+            <input type="text" id="search-input" placeholder="갤러리명 검색...">
+          </div>
+          <select id="price-filter">
+            <option value="">전체 가격</option>
+            <option value="free">무료</option>
+            <option value="paid">가격 공개</option>
+            <option value="inquiry">문의 필요</option>
+          </select>
+        </div>
+        <div class="filter-chips">
+          <span class="chip on" data-chip="all">전체</span>
+          <span class="chip" data-chip="has-link">홈페이지 있음</span>
+          <span class="chip" data-chip="cheap">10만원 이하</span>
+        </div>
+      </div>
+
+      <div class="gallery-count-label" id="gallery-count-label" style="padding:0 16px;flex-shrink:0;"></div>
+      <div class="gallery-list" id="gallery-list"></div>
+    </div>
+
+    <!-- All galleries view -->
+    <div class="panel-all" id="panel-all">
+      <div class="all-header">
+        <h2>전체 갤러리</h2>
+        <div class="all-search-row">
+          <div class="search-input-wrap" style="max-width:200px;">
+            <span class="ico">🔍</span>
+            <input type="text" id="all-search" placeholder="갤러리명 검색...">
+          </div>
+          <select id="all-district-filter">
+            <option value="">전체 구</option>
+          </select>
+          <select id="all-price-filter">
+            <option value="">전체 가격</option>
+            <option value="free">무료</option>
+            <option value="paid">가격 공개</option>
+            <option value="inquiry">문의 필요</option>
+          </select>
+        </div>
+      </div>
+      <div class="all-list" id="all-list"></div>
+    </div>
+
+  </aside>
+</div><!-- /.app -->
+
+<script>
+// ══════════════════════════════════════════════════════════════
+//  Gallery Data
+// ══════════════════════════════════════════════════════════════
+const GALLERY_DATA = {
+  "종로구": {
+    sub: "인사동 · 삼청동 · 북촌",
+    galleries: [
+      { name: "갤러리 인사아트", addr: "종로구 인사동길 41-1", price: "약 24~79만원/일", priceType: "paid", note: "7일 단위 대관, 전시실별 상이", link: "https://galleryinsaart.com/rental/" },
+      { name: "KCDF 갤러리", addr: "종로구 인사동11길 8", price: "문의", priceType: "inquiry", note: "공예·디자인 분야 특화 / 02-732-9382", link: "https://www.kcdf.or.kr/cms/content/view/215" },
+      { name: "갤러리이즈", addr: "종로구 인사동길 52-1", price: "문의", priceType: "inquiry", note: "석·박사 청구전 30% 할인 운영", link: "http://www.galleryis.com" },
+      { name: "갤러리은", addr: "종로구 인사동 소재", price: "문의", priceType: "inquiry", note: "1·2층 전시실 운영", link: "https://www.galleryeun.com" },
+      { name: "갤러리 에뽀끄", addr: "종로구 재동 38-1", price: "문의", priceType: "inquiry", note: "", link: "http://www.galleryepoque.com" },
+      { name: "갤러리 아페타", addr: "종로구 견지동 111 B1F", price: "문의", priceType: "inquiry", note: "", link: "http://www.galleryapheta.com" },
+      { name: "세종미술관", addr: "종로구 세종대로 175 세종문화회관", price: "문의", priceType: "inquiry", note: "심사 후 대관 승인 / 02-399-1048", link: "https://www.sejongpac.or.kr/portal/main/contents.do?menuNo=200422" },
+      { name: "CN갤러리", addr: "종로구 북촌로5길 56-7", price: "문의", priceType: "inquiry", note: "화~일 10:00~18:00", link: "https://cngallery.kr" },
+      { name: "갤러리정", addr: "종로구 내수동 110-34", price: "문의", priceType: "inquiry", note: "", link: "" },
+    ]
+  },
+  "중구": {
+    sub: "시청 · 을지로 · 명동",
+    galleries: [
+      { name: "서울갤러리 (서울시청)", addr: "중구 세종대로 110 서울시청 지하 1·2층", price: "회의실 별도 책정", priceType: "inquiry", note: "전시관 무료 관람, 회의실 대관 가능", link: "https://www.seoul.go.kr/seoulgallery/www/index.do" },
+      { name: "문화역서울 284", addr: "중구 통일로 1 (구 서울역사)", price: "문의", priceType: "inquiry", note: "KCDF 운영, 대형 행사 가능 / 02-3407-3500", link: "https://www.kcdf.or.kr/cms/content/view/215" },
+    ]
+  },
+  "용산구": {
+    sub: "한남동 · 이태원",
+    galleries: [
+      { name: "갤러리 조은", addr: "용산구 한남동 739-24 1층", price: "문의", priceType: "inquiry", note: "매월 중견작가 기획전", link: "https://galleryjoeun.com" },
+      { name: "LKIF 갤러리", addr: "용산구 한남대로27길 36-63 2층", price: "문의", priceType: "inquiry", note: "", link: "" },
+      { name: "갤러리 앱생트", addr: "용산구 용산동2가 17 B1", price: "문의", priceType: "inquiry", note: "", link: "" },
+      { name: "한전아트센터 갤러리", addr: "용산구 한강대로 23", price: "문의", priceType: "inquiry", note: "평일 09:00~18:00 문의 / 02-3456-5096", link: "https://home.kepco.co.kr/kepco/AR/B/htmlView/ARABHP00202.do?menuCd=FN10020202" },
+    ]
+  },
+  "마포구": {
+    sub: "홍대 · 연남 · 합정",
+    galleries: [
+      { name: "어반플루토 홍대점 (알지비큐브)", addr: "마포구 와우산로29라길 26 1.5층", price: "평일 16만원 / 주말 22만원", priceType: "paid", note: "최소 4일, 11:00~19:00", link: "https://www.urbanpluto.com/rent-gallery/rent-gallery-rgbcube" },
+      { name: "갤러리 지하", addr: "마포구 (경의선책거리 옆, 홍대입구역 인근)", price: "9만원/일", priceType: "paid", note: "최소 4일, 12:00~19:00, 설치 지원 포함", link: "https://galleryjiha.com" },
+      { name: "갤러리 이트리움", addr: "마포구 연남동 중심", price: "문의", priceType: "inquiry", note: "7일 단위 대관, 심사 후 24h 내 결과", link: "https://etrium.art/rent" },
+      { name: "마포문화재단 갤러리", addr: "마포구 소재", price: "문의", priceType: "inquiry", note: "", link: "https://www.mfac.or.kr/rental/rental_info.jsp" },
+    ]
+  },
+  "영등포구": {
+    sub: "선유도 · 여의도",
+    galleries: [
+      { name: "어반플루토 선유도점", addr: "영등포구 양평로22나길 3-2", price: "7만 7천원/일", priceType: "paid", note: "최소 4일, 선유도역 2번 출구 2분", link: "https://www.urbanpluto.com/rent-gallery" },
+    ]
+  },
+  "성동구": {
+    sub: "성수동 · 왕십리",
+    galleries: [
+      { name: "뎁센드 갤러리 (Depthend 1·2)", addr: "성동구 성수동", price: "DM 문의", priceType: "inquiry", note: "전시·팝업 2개 공간 운영", link: "https://www.instagram.com/depthend_gallery/" },
+      { name: "LCDC SEOUL", addr: "성동구 연무장17길 10", price: "문의", priceType: "inquiry", note: "", link: "" },
+      { name: "갤러리 제이와이", addr: "성동구 연무장길 41 1·2층·지하", price: "문의", priceType: "inquiry", note: "", link: "" },
+    ]
+  },
+  "강남구": {
+    sub: "청담 · 압구정 · 역삼",
+    galleries: [
+      { name: "K현대미술관", addr: "강남구 선릉로 807", price: "문의", priceType: "inquiry", note: "6층 규모 사립 미술관", link: "https://www.kmcaseoul.org" },
+      { name: "갤러리 연오재", addr: "강남구 청담동 106-5", price: "문의", priceType: "inquiry", note: "", link: "" },
+      { name: "갤러리 오스퀘어", addr: "강남구 청담동 118-17 3층", price: "문의", priceType: "inquiry", note: "", link: "" },
+      { name: "갤러리 엘르", addr: "강남구 역삼동 652-3 B1", price: "문의", priceType: "inquiry", note: "", link: "" },
+    ]
+  },
+  "서초구": {
+    sub: "예술의전당 · 방배",
+    galleries: [
+      { name: "예술의전당 한가람 디자인미술관", addr: "서초구 남부순환로 2406", price: "약 104만 5천원/일", priceType: "paid", note: "1전시실 727㎡, VAT 별도. 한가람미술관은 2025.10~리모델링", link: "https://www.sac.or.kr/site/main/content/museumRentalPrice" },
+      { name: "갤러리 엠나인", addr: "서초구 서초대로25길 23 B1", price: "문의", priceType: "inquiry", note: "", link: "" },
+    ]
+  },
+  "강북구": {
+    sub: "번동 · 수유",
+    galleries: [
+      { name: "꿈의숲 아트센터 드림갤러리", addr: "강북구 월계로 173", price: "문의", priceType: "inquiry", note: "상상톡톡미술관(453㎡)·드림갤러리(297㎡) 운영", link: "https://www.sejongpac.or.kr/dfac/main/contents.do?menuNo=1200052" },
+    ]
+  },
+  "동작구": {
+    sub: "사당 · 상도",
+    galleries: [
+      { name: "동작아트갤러리", addr: "동작구 소재 (동작문화재단 운영)", price: "무료 (지원사업)", priceType: "free", note: "2026 열린 갤러리 참여 예술인 모집", link: "http://www.dongjaknews.com/33089" },
+    ]
+  },
+  "광진구": {
+    sub: "자양동 · 건대입구",
+    galleries: [
+      { name: "갤러리 예맥", addr: "광진구 자양동 227-342 더클레식500 205-2호", price: "문의", priceType: "inquiry", note: "", link: "" },
+    ]
+  },
+  "강동구": {
+    sub: "천호동 · 길동",
+    galleries: [
+      { name: "천호지하보도 문화갤러리", addr: "강동구 천호대로 1033 (천호지하보도)", price: "무료", priceType: "free", note: "주 단위 대관, 강동구청 도시경관과 심의 (02-3425-6130)", link: "" },
+    ]
+  },
+};
+
+// ══════════════════════════════════════════════════════════════
+//  State
+// ══════════════════════════════════════════════════════════════
+let currentDistrict = null;
+let chipState = 'all';
+let allViewOpen = false;
+let districtSelected = false;   // 한 번이라도 구가 선택되면 true → empty 영역 완전 제거
+
+// ══════════════════════════════════════════════════════════════
+//  Init
+// ══════════════════════════════════════════════════════════════
+function init() {
+  // Mark districts that have data
+  document.querySelectorAll('.district-group').forEach(g => {
+    const d = g.dataset.district;
+    if (GALLERY_DATA[d]) g.classList.add('has-data');
+    g.addEventListener('click', () => selectDistrict(d));
+  });
+
+  // Close btn
+  document.getElementById('close-btn').addEventListener('click', closePanel);
+  document.getElementById('reset-btn').addEventListener('click', closePanel);
+
+  // Search / filter in detail panel
+  document.getElementById('search-input').addEventListener('input', renderGalleries);
+  document.getElementById('price-filter').addEventListener('change', renderGalleries);
+  document.querySelectorAll('.chip').forEach(c => {
+    c.addEventListener('click', function() {
+      document.querySelectorAll('.chip').forEach(x => x.classList.remove('on'));
+      this.classList.add('on');
+      chipState = this.dataset.chip;
+      renderGalleries();
+    });
+  });
+
+  // All view
+  document.getElementById('all-view-btn').addEventListener('click', toggleAllView);
+  document.getElementById('all-search').addEventListener('input', renderAllGalleries);
+  document.getElementById('all-district-filter').addEventListener('change', renderAllGalleries);
+  document.getElementById('all-price-filter').addEventListener('change', renderAllGalleries);
+
+  // Populate district select for all view
+  const sel = document.getElementById('all-district-filter');
+  Object.keys(GALLERY_DATA).forEach(d => {
+    const o = document.createElement('option');
+    o.value = d; o.textContent = d;
+    sel.appendChild(o);
+  });
+
+  // Total count
+  let total = 0;
+  Object.values(GALLERY_DATA).forEach(v => total += v.galleries.length);
+  document.getElementById('total-count').textContent = total;
+}
+
+// ══════════════════════════════════════════════════════════════
+//  Select District
+// ══════════════════════════════════════════════════════════════
+function selectDistrict(district) {
+  if (!GALLERY_DATA[district]) return;
+
+  // Update map selection
+  document.querySelectorAll('.district-group').forEach(g => g.classList.remove('active'));
+  const el = document.getElementById('d-' + district
+    .replace('구','')
+    .replace(/[가-힣]/g, c => ({
+      '은평':'eunpyeong','도봉':'dobong','노원':'nowon','강북':'gangbuk',
+      '성북':'seongbuk','종로':'jongno','동대문':'dongdaemun','중':'jung',
+      '성동':'seongdong','서대문':'seodaemun','마포':'mapo','용산':'yongsan',
+      '광진':'gwangjin','강서':'gangseo','양천':'yangcheon','영등포':'yeongdeungpo',
+      '동작':'dongjak','관악':'gwanak','서초':'seocho','강남':'gangnam',
+      '송파':'songpa','강동':'gangdong','중랑':'jungnang'
+    }[c] || c))
+  );
+  // simpler lookup
+  const idMap = {
+    '은평구':'eunpyeong','도봉구':'dobong','노원구':'nowon','강북구':'gangbuk',
+    '성북구':'seongbuk','종로구':'jongno','동대문구':'dongdaemun','중구':'jung',
+    '성동구':'seongdong','서대문구':'seodaemun','마포구':'mapo','용산구':'yongsan',
+    '광진구':'gwangjin','강서구':'gangseo','양천구':'yangcheon','영등포구':'yeongdeungpo',
+    '동작구':'dongjak','관악구':'gwanak','서초구':'seocho','강남구':'gangnam',
+    '송파구':'songpa','강동구':'gangdong','중랑구':'jungnang'
+  };
+  const gEl = document.getElementById('d-' + idMap[district]);
+  if (gEl) gEl.classList.add('active');
+
+  currentDistrict = district;
+
+  // Close all view if open
+  if (allViewOpen) toggleAllView();
+
+  // 첫 선택 시 panel-empty를 display:none으로 완전히 제거 (공간까지 사라짐)
+  if (!districtSelected) {
+    districtSelected = true;
+    document.getElementById('panel-empty').style.display = 'none';
+  }
+
+  // Show detail panel (flex로 나머지 공간 전부 차지)
+  const detail = document.getElementById('panel-detail');
+  detail.style.display = 'flex';
+  document.getElementById('panel-header').classList.add('visible');
+  document.getElementById('panel-search').classList.add('visible');
+
+  // Set title & meta
+  const data = GALLERY_DATA[district];
+  document.getElementById('panel-title').textContent = district;
+  document.getElementById('panel-meta').innerHTML =
+    `<span class="meta-tag area">${data.sub}</span>` +
+    `<span class="meta-tag count">${data.galleries.length}개 공간</span>`;
+
+  // Reset filters
+  document.getElementById('search-input').value = '';
+  document.getElementById('price-filter').value = '';
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
+  document.querySelector('.chip[data-chip="all"]').classList.add('on');
+  chipState = 'all';
+
+  renderGalleries();
+}
+
+// ══════════════════════════════════════════════════════════════
+//  Render Gallery Cards (detail view)
+// ══════════════════════════════════════════════════════════════
+function renderGalleries() {
+  if (!currentDistrict) return;
+  const q = document.getElementById('search-input').value.trim().toLowerCase();
+  const priceF = document.getElementById('price-filter').value;
+  const data = GALLERY_DATA[currentDistrict];
+
+  let list = data.galleries.filter(g => {
+    if (q && !(g.name + g.addr).toLowerCase().includes(q)) return false;
+    if (priceF && g.priceType !== priceF) return false;
+    if (chipState === 'has-link' && !g.link) return false;
+    if (chipState === 'cheap') {
+      // only show ones with clearly cheap prices (under 100k)
+      if (g.priceType !== 'paid') return false;
+      const num = parseInt(g.price.replace(/[^0-9]/g,''));
+      if (num > 100) return false;
+    }
+    return true;
+  });
+
+  const countLabel = document.getElementById('gallery-count-label');
+  countLabel.textContent = `${list.length} / ${data.galleries.length}개 표시 중`;
+
+  const container = document.getElementById('gallery-list');
+  const noRes = document.querySelector('.no-results');
+
+  if (list.length === 0) {
+    container.innerHTML = '';
+    if (!noRes) {
+      const d = document.createElement('div');
+      d.className = 'no-results visible';
+      d.textContent = '검색 결과가 없습니다.';
+      container.appendChild(d);
+    } else noRes.classList.add('visible');
+    return;
+  }
+  if (noRes) noRes.classList.remove('visible');
+
+  container.innerHTML = list.map((g, i) => `
+    <div class="gallery-card" style="animation-delay:${i * 0.04}s">
+      <div class="card-name">${g.name}</div>
+      <div class="card-addr">${g.addr}</div>
+      <div class="card-bottom">
+        <span class="price-badge ${g.priceType}">${formatPriceLabel(g.priceType, g.price)}</span>
+        ${g.note ? `<span class="card-note">${g.note}</span>` : ''}
+      </div>
+      ${g.link ? `
+      <div class="card-link">
+        <a href="${g.link}" target="_blank" rel="noopener">${extractDomain(g.link)}</a>
+      </div>` : ''}
+    </div>
+  `).join('');
+}
+
+// ══════════════════════════════════════════════════════════════
+//  All View
+// ══════════════════════════════════════════════════════════════
+function toggleAllView() {
+  allViewOpen = !allViewOpen;
+  const btn = document.getElementById('all-view-btn');
+  const allPanel = document.getElementById('panel-all');
+  const detail = document.getElementById('panel-detail');
+  const empty = document.getElementById('panel-empty');
+
+  if (allViewOpen) {
+    btn.classList.add('active');
+    allPanel.classList.add('visible');
+    detail.style.display = 'none';
+    // districtSelected 여부에 관계없이 all view 열릴 때 empty는 항상 숨김
+    empty.style.display = 'none';
+    renderAllGalleries();
+  } else {
+    btn.classList.remove('active');
+    allPanel.classList.remove('visible');
+    if (currentDistrict) {
+      // 선택된 구가 있으면 detail 복원
+      detail.style.display = 'flex';
+    } else if (!districtSelected) {
+      // 한 번도 선택 안 했으면 empty 복원
+      empty.style.display = '';
+    }
+    // districtSelected가 true이고 currentDistrict가 null이면 둘 다 숨긴 채 유지
+  }
+}
+
+function renderAllGalleries() {
+  const q = document.getElementById('all-search').value.trim().toLowerCase();
+  const distF = document.getElementById('all-district-filter').value;
+  const priceF = document.getElementById('all-price-filter').value;
+
+  let groups = [];
+  Object.entries(GALLERY_DATA).forEach(([dist, data]) => {
+    if (distF && dist !== distF) return;
+    const rows = data.galleries.filter(g => {
+      if (q && !(g.name + g.addr + dist).toLowerCase().includes(q)) return false;
+      if (priceF && g.priceType !== priceF) return false;
+      return true;
+    });
+    if (rows.length) groups.push({ dist, sub: data.sub, rows });
+  });
+
+  let total = 0;
+  groups.forEach(g => total += g.rows.length);
+
+  const container = document.getElementById('all-list');
+  if (!groups.length) {
+    container.innerHTML = '<div style="padding:40px;text-align:center;font-size:12px;color:var(--text-3);">검색 결과가 없습니다.</div>';
+    return;
+  }
+
+  container.innerHTML = groups.map(g => `
+    <div style="margin-bottom:20px;">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid var(--border);">
+        <span style="font-family:var(--font-display);font-size:18px;color:var(--text-1);">${g.dist}</span>
+        <span style="font-size:11px;color:var(--text-3);">${g.sub}</span>
+        <span style="margin-left:auto;font-family:var(--font-mono);font-size:10px;color:var(--text-3);">${g.rows.length}개</span>
+      </div>
+      ${g.rows.map((r, i) => `
+        <div class="gallery-card" style="animation-delay:${i*0.03}s">
+          <div class="card-name">${r.name}</div>
+          <div class="card-addr">${r.addr}</div>
+          <div class="card-bottom">
+            <span class="price-badge ${r.priceType}">${formatPriceLabel(r.priceType, r.price)}</span>
+            ${r.note ? `<span class="card-note">${r.note}</span>` : ''}
+          </div>
+          ${r.link ? `<div class="card-link"><a href="${r.link}" target="_blank" rel="noopener">${extractDomain(r.link)}</a></div>` : ''}
+        </div>
+      `).join('')}
+    </div>
+  `).join('');
+}
+
+// ══════════════════════════════════════════════════════════════
+//  Helpers
+// ══════════════════════════════════════════════════════════════
+function closePanel() {
+  document.querySelectorAll('.district-group').forEach(g => g.classList.remove('active'));
+  currentDistrict = null;
+
+  // districtSelected가 true이면 panel-empty는 이미 display:none 상태 유지
+  // 선택 해제 시에는 empty를 다시 보여주지 않고, detail만 숨김
+  if (!districtSelected) {
+    // 아직 한 번도 선택 안 한 상태라면 empty 그대로 표시
+    document.getElementById('panel-empty').style.display = '';
+  }
+  document.getElementById('panel-detail').style.display = 'none';
+  document.getElementById('panel-header').classList.remove('visible');
+  document.getElementById('panel-search').classList.remove('visible');
+  if (allViewOpen) {
+    allViewOpen = false;
+    document.getElementById('panel-all').classList.remove('visible');
+    document.getElementById('all-view-btn').classList.remove('active');
+  }
+}
+
+function formatPriceLabel(type, price) {
+  if (type === 'free') return '무료';
+  if (type === 'paid') return price;
+  return '문의 필요';
+}
+
+function extractDomain(url) {
+  try { return new URL(url).hostname.replace('www.',''); }
+  catch { return url.slice(0,30); }
+}
+
+// ══════════════════════════════════════════════════════════════
+init();
+</script>
+</body>
+</html>
