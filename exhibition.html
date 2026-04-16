@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>찰나 — 전시 주제 기록</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400&family=Noto+Sans+KR:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #faf9f7;
+    color: #1a1a1a;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 300;
+    line-height: 1.8;
+  }
+
+  .page {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 80px 32px 100px;
+  }
+
+  /* Header */
+  header {
+    margin-bottom: 64px;
+    padding-bottom: 40px;
+    border-bottom: 1px solid #e0ddd8;
+  }
+
+  .tag {
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: #999;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  h1 {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 40px;
+    font-weight: 400;
+    letter-spacing: -1px;
+    color: #1a1a1a;
+    margin-bottom: 8px;
+  }
+
+  .desc {
+    font-size: 13px;
+    color: #888;
+  }
+
+  /* Step */
+  .step {
+    margin-bottom: 52px;
+  }
+
+  .step-header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .step-num {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: #bbb;
+    font-weight: 400;
+  }
+
+  .step-title {
+    font-size: 15px;
+    font-weight: 400;
+    color: #1a1a1a;
+  }
+
+  .question {
+    font-size: 14px;
+    color: #444;
+    margin-bottom: 14px;
+    padding-left: 14px;
+    border-left: 2px solid #ddd;
+    font-style: italic;
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 16px;
+    padding-left: 14px;
+  }
+
+  .chip {
+    font-size: 12px;
+    color: #888;
+    background: #f0ede8;
+    padding: 4px 12px;
+    border-radius: 100px;
+  }
+
+  .answer {
+    background: #fff;
+    border: 1px solid #e8e5e0;
+    border-radius: 6px;
+    padding: 18px 20px;
+  }
+
+  .answer-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: #bbb;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .answer-text {
+    font-size: 14px;
+    color: #333;
+    line-height: 1.85;
+  }
+
+  /* Keywords */
+  .keywords {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 52px 0;
+    padding-top: 40px;
+    border-top: 1px solid #e0ddd8;
+  }
+
+  .keyword {
+    font-size: 12px;
+    color: #555;
+    background: #f0ede8;
+    padding: 5px 14px;
+    border-radius: 100px;
+  }
+
+  /* Result */
+  .result {
+    text-align: center;
+    padding: 48px 32px;
+    background: #1a1a1a;
+    border-radius: 8px;
+    color: #faf9f7;
+  }
+
+  .result-label {
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: #666;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  .result-title {
+    font-family: 'Noto Serif KR', serif;
+    font-size: 48px;
+    font-weight: 400;
+    letter-spacing: -1px;
+    margin-bottom: 6px;
+  }
+
+  .result-hanja {
+    font-size: 13px;
+    color: #666;
+    letter-spacing: 4px;
+    margin-bottom: 32px;
+  }
+
+  .result-divider {
+    width: 32px;
+    height: 1px;
+    background: #333;
+    margin: 0 auto 32px;
+  }
+
+  .result-note {
+    font-size: 13px;
+    color: #888;
+    line-height: 2;
+    margin-bottom: 28px;
+  }
+
+  .writer-note {
+    border-top: 1px solid #2a2a2a;
+    padding-top: 24px;
+  }
+
+  .writer-note-label {
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: #555;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .writer-note-text {
+    font-size: 13px;
+    font-style: italic;
+    color: #777;
+    line-height: 2;
+  }
+
+  @media (max-width: 480px) {
+    .page { padding: 52px 20px 72px; }
+    h1 { font-size: 32px; }
+    .result-title { font-size: 40px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <div class="tag">First Exhibition</div>
+    <h1>찰나</h1>
+    <p class="desc">전시 주제 선정 과정의 기록</p>
+  </header>
+
+  <div class="step">
+    <div class="step-header">
+      <span class="step-num">01</span>
+      <span class="step-title">나를 돌아보기</span>
+    </div>
+    <p class="question">내가 무의식적으로 자꾸 찍게 되는 대상이 뭐지?</p>
+    <div class="chips">
+      <span class="chip">사람 / 사물 / 풍경</span>
+      <span class="chip">밝은 장면 / 어둡고 쓸쓸한 장면</span>
+      <span class="chip">넓은 공간 / 좁고 구석진 곳</span>
+    </div>
+    <div class="answer">
+      <div class="answer-label">나의 답</div>
+      <div class="answer-text">풍경이며 밝기도 하고 어둡기도 한 장면들을 찍는다.</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <span class="step-num">02</span>
+      <span class="step-title">감정을 언어로</span>
+    </div>
+    <p class="question">내 사진을 보는 사람이 어떤 감정을 느끼길 바라지?</p>
+    <div class="chips">
+      <span class="chip">위로받는 느낌</span>
+      <span class="chip">불편함</span>
+      <span class="chip">그리움</span>
+      <span class="chip">경이로움</span>
+    </div>
+    <div class="answer">
+      <div class="answer-label">나의 답</div>
+      <div class="answer-text">위로받는 느낌, 그리고 평범한 일상에서도 아름다운 순간이 있구나 하는 감정을 느끼길 바란다.</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <span class="step-num">03</span>
+      <span class="step-title">세상을 향한 질문</span>
+    </div>
+    <p class="question">내가 요즘 세상에서 이상하다고 느끼거나, 안타깝거나, 아름답다고 느끼는 게 뭐지?</p>
+    <div class="chips">
+      <span class="chip">빠르게 사라지는 것들에 대한 아쉬움</span>
+      <span class="chip">사람들이 놓치고 사는 작은 아름다움</span>
+      <span class="chip">도시에서 느끼는 단절감</span>
+    </div>
+    <div class="answer">
+      <div class="answer-label">나의 답</div>
+      <div class="answer-text">당연하다고 생각하는 일상 속에서 찾을 수 있는 순간들, 사람들이 놓치고 사는 작은 아름다움에 가깝다고 생각한다.</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-header">
+      <span class="step-num">04</span>
+      <span class="step-title">한 문장으로 압축</span>
+    </div>
+    <p class="question">이 전시를 보고 나서 관람객이 딱 한 가지만 느낀다면, 그게 뭐였으면 좋겠지?</p>
+    <div class="chips">
+      <span class="chip">"바쁘게 살다 잊고 있던 걸 잠깐 떠올렸다"</span>
+      <span class="chip">"이 도시가 외롭기도 하지만 따뜻하다는 걸 알았다"</span>
+    </div>
+    <div class="answer">
+      <div class="answer-label">나의 답</div>
+      <div class="answer-text">내가 살아온 시간 속에서도 이러한 순간들이 있었다.</div>
+    </div>
+  </div>
+
+  <div class="keywords">
+    <span class="keyword">풍경</span>
+    <span class="keyword">일상</span>
+    <span class="keyword">작은 아름다움</span>
+    <span class="keyword">위로</span>
+    <span class="keyword">지나온 시간</span>
+  </div>
+
+  <div class="result">
+    <div class="result-label">Exhibition Title</div>
+    <div class="result-title">찰나</div>
+    <div class="result-hanja">刹那</div>
+    <div class="result-divider"></div>
+    <p class="result-note">
+      풍경 속에 담긴 짧고 작은 순간들.<br>
+      누군가는 그냥 지나쳤을 그 찰나가<br>
+      누군가의 삶 속에도 있었다.
+    </p>
+    <div class="writer-note">
+      <div class="writer-note-label">작가 노트 첫 문장</div>
+      <div class="writer-note-text">
+        "우리는 매일 수백 개의 풍경을 지나친다.<br>
+        이 사진들은 그중 그냥 흘려보낼 뻔했던 순간들이다."
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
