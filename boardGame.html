@@ -1,0 +1,242 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.game-wrap{padding:1rem 0;display:flex;flex-direction:column;align-items:center;gap:16px}
+.board-outer{background:#2d5a1b;border-radius:12px;padding:10px;border:3px solid #1a3a0e}
+.board-inner{background:#e8d5a3;border-radius:8px;padding:6px}
+.board-grid{display:grid;grid-template-columns:repeat(10,56px);grid-template-rows:repeat(3,56px);gap:3px}
+.cell{width:56px;height:56px;border-radius:6px;border:1.5px solid rgba(0,0,0,0.15);display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;cursor:default;background:#fffef7}
+.cell-num{font-size:9px;font-weight:500;color:#888;line-height:1}
+.cell-label{font-size:8px;font-weight:500;color:#555;margin-top:1px}
+.cell.c-green-tile{background:#b8e0a0;border-color:#5a9e3a}
+.cell.c-blue-tile{background:#a8c8f0;border-color:#3a6ea8}
+.cell.c-yellow-tile{background:#f5e888;border-color:#c8a020}
+.cell.c-pink-tile{background:#f5b8d0;border-color:#c84880}
+.cell.c-orange-tile{background:#fad0a0;border-color:#d87820}
+.cell.c-purple-tile{background:#d0b8f0;border-color:#7840c8}
+.cell.c-red-tile{background:#f5a0a0;border-color:#c83030}
+.cell.c-teal-tile{background:#a0e0d8;border-color:#2090a0}
+.cell.start-cell{background:#c8e8b0;border-color:#4a9020;border-width:2px}
+.cell.prize-20{background:#fff3a0;border-color:#c8a000;border-width:2px}
+.cell.prize-30{background:#a0e8b0;border-color:#20a040;border-width:2px}
+.prize-tag{font-size:9px;font-weight:500;margin-top:1px}
+.prize-tag.money20{color:#856000}
+.prize-tag.money30{color:#0a6020}
+.pieces-layer{position:absolute;inset:0;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:1px;padding:2px}
+.piece{width:14px;height:14px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:7px;font-weight:500;color:#fff;border:1px solid rgba(0,0,0,0.25);flex-shrink:0}
+.start-icon{font-size:14px;line-height:1}
+.dice-area{display:flex;align-items:center;gap:16px;background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:12px;padding:12px 20px}
+.dice-box{display:flex;gap:8px;align-items:center}
+.die{width:48px;height:48px;border-radius:8px;background:#fffef7;border:2px solid #333;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:500;color:#222;transition:transform 0.1s}
+.die.rolling{animation:shake 0.4s ease}
+@keyframes shake{0%,100%{transform:rotate(0deg)}25%{transform:rotate(-15deg)}75%{transform:rotate(15deg)}}
+.roll-btn{background:#2d5a1b;color:#e8d5a3;border:none;border-radius:8px;padding:10px 18px;font-size:13px;font-weight:500;cursor:pointer;font-family:var(--font-sans)}
+.roll-btn:hover{background:#1a3a0e}
+.roll-btn:disabled{background:#888;cursor:not-allowed}
+.player-select{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.player-btn{width:36px;height:36px;border-radius:50%;border:2.5px solid transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#fff;transition:border-color 0.15s,transform 0.1s}
+.player-btn.active{border-color:#222;transform:scale(1.15)}
+.status-bar{font-size:13px;color:var(--color-text-secondary);text-align:center;min-height:20px}
+.legend-row{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--color-text-secondary)}
+.leg-dot{width:16px;height:16px;border-radius:50%;flex-shrink:0}
+</style>
+
+<div class="game-wrap">
+  <h2 class="sr-only">부루마불 스타일 보드 게임 — 1~30칸, 말 5개, 주사위 굴리기 가능</h2>
+
+  <div class="board-outer">
+    <div class="board-inner">
+      <div class="board-grid" id="grid"></div>
+    </div>
+  </div>
+
+  <div class="dice-area">
+    <div class="player-select" id="playerSelect"></div>
+    <div class="dice-box">
+      <div class="die" id="die1">1</div>
+      <div class="die" id="die2">6</div>
+    </div>
+    <button class="roll-btn" id="rollBtn" onclick="rollDice()">주사위 굴리기</button>
+  </div>
+  <div class="status-bar" id="statusBar">플레이어를 선택하고 주사위를 굴리세요</div>
+
+  <div class="legend-row" id="legend"></div>
+</div>
+
+<script>
+const PLAYERS = [
+  {label:'A', color:'#D85A30'},
+  {label:'B', color:'#185FA5'},
+  {label:'C', color:'#1D9E75'},
+  {label:'D', color:'#993556'},
+  {label:'E', color:'#534AB7'},
+];
+const TILE_COLORS = [
+  'c-green-tile','c-blue-tile','c-yellow-tile','c-pink-tile','c-orange-tile',
+  'c-purple-tile','c-red-tile','c-teal-tile','c-green-tile','c-blue-tile',
+  'c-yellow-tile','c-pink-tile','c-orange-tile','c-purple-tile','c-red-tile',
+  'c-teal-tile','c-green-tile','c-blue-tile','c-yellow-tile','c-pink-tile',
+  'c-orange-tile','c-purple-tile','c-red-tile','c-teal-tile','c-green-tile',
+  'c-blue-tile','c-yellow-tile','c-pink-tile','c-orange-tile','c-purple-tile',
+];
+const DICE_FACES = ['⚀','⚁','⚂','⚃','⚄','⚅'];
+
+let positions = [0,0,0,0,0];
+let currentPlayer = 0;
+let rolling = false;
+
+function buildBoard() {
+  const grid = document.getElementById('grid');
+  for (let i = 1; i <= 30; i++) {
+    const cell = document.createElement('div');
+    cell.className = 'cell ' + TILE_COLORS[i-1];
+    if (i === 1) cell.classList.add('start-cell');
+    if (i === 20) cell.classList.add('prize-20');
+    if (i === 30) cell.classList.add('prize-30');
+    cell.id = 'cell-' + i;
+
+    const num = document.createElement('div');
+    num.className = 'cell-num';
+    if (i === 1) { num.innerHTML = '<span class="start-icon" style="font-size:16px">🚩</span>'; }
+    else if (i === 20) { num.textContent = '20'; }
+    else if (i === 30) { num.textContent = '30'; }
+    else { num.textContent = i; }
+    cell.appendChild(num);
+
+    if (i === 20) {
+      const t = document.createElement('div');
+      t.className = 'prize-tag money20';
+      t.textContent = '5만원';
+      cell.appendChild(t);
+    }
+    if (i === 30) {
+      const t = document.createElement('div');
+      t.className = 'prize-tag money30';
+      t.textContent = '10만원';
+      cell.appendChild(t);
+    }
+
+    const pl = document.createElement('div');
+    pl.className = 'pieces-layer';
+    pl.id = 'pieces-' + i;
+    cell.appendChild(pl);
+
+    grid.appendChild(cell);
+  }
+  renderPieces();
+}
+
+function renderPieces() {
+  for (let i = 1; i <= 30; i++) {
+    document.getElementById('pieces-' + i).innerHTML = '';
+  }
+  const startEl = document.getElementById('cell-1').querySelector('.pieces-layer');
+  PLAYERS.forEach((p, idx) => {
+    const pos = positions[idx];
+    const cellId = pos === 0 ? 'pieces-1' : 'pieces-' + pos;
+    const container = document.getElementById(cellId) || startEl;
+    const dot = document.createElement('div');
+    dot.className = 'piece';
+    dot.style.background = p.color;
+    dot.textContent = p.label;
+    container.appendChild(dot);
+  });
+}
+
+function buildControls() {
+  const ps = document.getElementById('playerSelect');
+  PLAYERS.forEach((p, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'player-btn' + (idx === 0 ? ' active' : '');
+    btn.style.background = p.color;
+    btn.textContent = p.label;
+    btn.id = 'pbtn-' + idx;
+    btn.onclick = () => selectPlayer(idx);
+    ps.appendChild(btn);
+  });
+
+  const lg = document.getElementById('legend');
+  PLAYERS.forEach(p => {
+    const item = document.createElement('div');
+    item.className = 'leg-item';
+    const dot = document.createElement('div');
+    dot.className = 'leg-dot';
+    dot.style.background = p.color;
+    item.appendChild(dot);
+    const lbl = document.createElement('span');
+    lbl.textContent = '말 ' + p.label;
+    item.appendChild(lbl);
+    lg.appendChild(item);
+  });
+}
+
+function selectPlayer(idx) {
+  currentPlayer = idx;
+  document.querySelectorAll('.player-btn').forEach((b,i) => {
+    b.classList.toggle('active', i === idx);
+  });
+  const pos = positions[idx];
+  const posText = pos === 0 ? '출발 대기 중' : pos + '번 칸';
+  document.getElementById('statusBar').textContent = '말 ' + PLAYERS[idx].label + ' 선택됨 — 현재 위치: ' + posText;
+}
+
+function rollDice() {
+  if (rolling) return;
+  rolling = true;
+  document.getElementById('rollBtn').disabled = true;
+
+  const d1 = document.getElementById('die1');
+  const d2 = document.getElementById('die2');
+  d1.classList.add('rolling');
+  d2.classList.add('rolling');
+
+  let ticks = 0;
+  const interval = setInterval(() => {
+    const r1 = Math.floor(Math.random()*6);
+    const r2 = Math.floor(Math.random()*6);
+    d1.textContent = DICE_FACES[r1];
+    d2.textContent = DICE_FACES[r2];
+    ticks++;
+    if (ticks >= 8) {
+      clearInterval(interval);
+      d1.classList.remove('rolling');
+      d2.classList.remove('rolling');
+      const v1 = Math.floor(Math.random()*6)+1;
+      const v2 = Math.floor(Math.random()*6)+1;
+      d1.textContent = DICE_FACES[v1-1];
+      d2.textContent = DICE_FACES[v2-1];
+      const total = v1 + v2;
+      movePlayer(currentPlayer, total);
+      rolling = false;
+      document.getElementById('rollBtn').disabled = false;
+    }
+  }, 80);
+}
+
+function movePlayer(idx, steps) {
+  const oldPos = positions[idx];
+  let newPos = (oldPos === 0 ? 0 : oldPos) + steps;
+  const p = PLAYERS[idx];
+
+  if (newPos > 30) {
+    newPos = 30;
+    positions[idx] = newPos;
+    renderPieces();
+    document.getElementById('statusBar').textContent = '말 ' + p.label + ' → ' + newPos + '번 칸 도착! 🏆 10만원 획득!';
+    return;
+  }
+
+  positions[idx] = newPos;
+  renderPieces();
+
+  let msg = '말 ' + p.label + ' — ' + (oldPos||1) + '번 → ' + newPos + '번 칸 이동 (주사위 ' + steps + ')';
+  if (newPos === 20) msg += ' 🎉 5만원 획득!';
+  if (newPos === 30) msg += ' 🏆 10만원 획득!';
+  document.getElementById('statusBar').textContent = msg;
+}
+
+buildBoard();
+buildControls();
+</script>
