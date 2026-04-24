@@ -1,39 +1,39 @@
 
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: var(--font-sans); }
-.wrap { padding: 1.5rem 1rem; max-width: 520px; margin: 0 auto; }
-.title { font-size: 22px; font-weight: 500; color: var(--color-text-primary); text-align: center; margin-bottom: 4px; }
-.sub { font-size: 14px; color: var(--color-text-secondary); text-align: center; margin-bottom: 1.5rem; }
-.category-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1.5rem; }
-.cat-btn { border-radius: var(--border-radius-lg); border: 2px solid transparent; padding: 14px 8px; cursor: pointer; font-size: 14px; font-weight: 500; text-align: center; transition: transform 0.12s, border-color 0.12s; background: var(--color-background-secondary); color: var(--color-text-primary); }
-.cat-btn:hover { transform: scale(1.04); }
-.cat-btn.active { border-color: currentColor; }
-.cat-btn.c-green { background: #EAF3DE; color: #3B6D11; }
-.cat-btn.c-pink { background: #FBEAF0; color: #993556; }
-.cat-btn.c-blue { background: #E6F1FB; color: #185FA5; }
-.cat-btn.c-amber { background: #FAEEDA; color: #854F0B; }
-.cat-btn.c-teal { background: #E1F5EE; color: #0F6E56; }
-.cat-btn.c-purple { background: #EEEDFE; color: #534AB7; }
-.cat-btn.c-green.active { border-color: #3B6D11; }
-.cat-btn.c-pink.active { border-color: #993556; }
-.cat-btn.c-blue.active { border-color: #185FA5; }
-.cat-btn.c-amber.active { border-color: #854F0B; }
-.cat-btn.c-teal.active { border-color: #0F6E56; }
-.cat-btn.c-purple.active { border-color: #534AB7; }
-.cat-emoji { font-size: 24px; display: block; margin-bottom: 4px; }
-.pick-btn { width: 100%; padding: 16px; border-radius: var(--border-radius-lg); border: none; font-size: 18px; font-weight: 500; cursor: pointer; background: #534AB7; color: #fff; letter-spacing: 0.02em; transition: transform 0.12s, background 0.12s; margin-bottom: 1.5rem; }
-.pick-btn:hover { background: #3C3489; transform: scale(1.02); }
-.pick-btn:active { transform: scale(0.98); }
-.result-box { border-radius: var(--border-radius-lg); border: 0.5px solid var(--color-border-tertiary); background: var(--color-background-primary); padding: 1.5rem; text-align: center; min-height: 140px; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: all 0.3s; }
-.result-empty { color: var(--color-text-secondary); font-size: 14px; }
-.result-cat { font-size: 12px; font-weight: 500; padding: 4px 12px; border-radius: 999px; margin-bottom: 12px; }
-.result-menu { font-size: 36px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 8px; letter-spacing: -0.5px; }
-.result-desc { font-size: 13px; color: var(--color-text-secondary); }
-.again-btn { margin-top: 12px; padding: 8px 20px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-secondary); background: transparent; color: var(--color-text-secondary); font-size: 13px; cursor: pointer; transition: background 0.1s; }
-.again-btn:hover { background: var(--color-background-secondary); }
-@keyframes pop { 0%{transform:scale(0.7);opacity:0} 60%{transform:scale(1.08)} 100%{transform:scale(1);opacity:1} }
-.pop { animation: pop 0.3s ease forwards; }
+*{box-sizing:border-box;margin:0;padding:0;}
+.wrap{padding:1.5rem 1rem;max-width:520px;margin:0 auto;width:100%;}
+.title{font-size:clamp(18px,4vw,22px);font-weight:500;color:var(--color-text-primary);text-align:center;margin-bottom:4px;}
+.sub{font-size:clamp(12px,3vw,14px);color:var(--color-text-secondary);text-align:center;margin-bottom:1.25rem;}
+.category-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1.25rem;}
+@media(max-width:380px){.category-grid{grid-template-columns:repeat(2,1fr);}}
+.cat-btn{border-radius:var(--border-radius-lg);border:2px solid transparent;padding:clamp(10px,2.5vw,14px) 6px;cursor:pointer;font-size:clamp(12px,3vw,14px);font-weight:500;text-align:center;transition:transform 0.12s,border-color 0.12s;background:var(--color-background-secondary);color:var(--color-text-primary);width:100%;}
+.cat-btn:hover{transform:scale(1.04);}
+.cat-btn.active{border-color:currentColor;}
+.cat-btn.c-green{background:#EAF3DE;color:#3B6D11;}
+.cat-btn.c-pink{background:#FBEAF0;color:#993556;}
+.cat-btn.c-blue{background:#E6F1FB;color:#185FA5;}
+.cat-btn.c-amber{background:#FAEEDA;color:#854F0B;}
+.cat-btn.c-teal{background:#E1F5EE;color:#0F6E56;}
+.cat-btn.c-purple{background:#EEEDFE;color:#534AB7;}
+.cat-btn.c-green.active{border-color:#3B6D11;}
+.cat-btn.c-pink.active{border-color:#993556;}
+.cat-btn.c-blue.active{border-color:#185FA5;}
+.cat-btn.c-amber.active{border-color:#854F0B;}
+.cat-btn.c-teal.active{border-color:#0F6E56;}
+.cat-btn.c-purple.active{border-color:#534AB7;}
+.cat-emoji{font-size:clamp(18px,4vw,24px);display:block;margin-bottom:3px;}
+.pick-btn{width:100%;padding:clamp(12px,3vw,16px);border-radius:var(--border-radius-lg);border:none;font-size:clamp(15px,3.5vw,18px);font-weight:500;cursor:pointer;background:#534AB7;color:#fff;letter-spacing:0.02em;transition:transform 0.12s,background 0.12s;margin-bottom:1.25rem;touch-action:manipulation;}
+.pick-btn:hover{background:#3C3489;transform:scale(1.02);}
+.pick-btn:active{transform:scale(0.97);}
+.result-box{border-radius:var(--border-radius-lg);border:0.5px solid var(--color-border-tertiary);background:var(--color-background-primary);padding:clamp(1rem,4vw,1.5rem);text-align:center;min-height:clamp(110px,25vw,140px);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:all 0.3s;}
+.result-empty{color:var(--color-text-secondary);font-size:clamp(12px,3vw,14px);}
+.result-cat{font-size:clamp(11px,2.5vw,12px);font-weight:500;padding:4px 12px;border-radius:999px;margin-bottom:10px;}
+.result-menu{font-size:clamp(26px,7vw,36px);font-weight:500;color:var(--color-text-primary);margin-bottom:6px;letter-spacing:-0.5px;}
+.result-desc{font-size:clamp(11px,2.8vw,13px);color:var(--color-text-secondary);}
+.again-btn{margin-top:12px;padding:8px 20px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:transparent;color:var(--color-text-secondary);font-size:clamp(11px,2.8vw,13px);cursor:pointer;transition:background 0.1s;touch-action:manipulation;}
+.again-btn:hover{background:var(--color-background-secondary);}
+@keyframes pop{0%{transform:scale(0.7);opacity:0}60%{transform:scale(1.08)}100%{transform:scale(1);opacity:1}}
+.pop{animation:pop 0.3s ease forwards;}
 </style>
 <div class="wrap">
   <h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)">점심 메뉴 추천기 — 카테고리를 선택하고 버튼을 눌러 메뉴를 추천받으세요</h2>
@@ -46,121 +46,94 @@ body { font-family: var(--font-sans); }
   </div>
 </div>
 <script>
-const menus = {
-  한식: {
-    color: "c-green",
-    emoji: "🍚",
-    items: [
-      {name:"제육볶음", desc:"매콤달콤한 돼지고기 볶음"},
-      {name:"김치찌개", desc:"얼큰한 국민 찌개"},
-      {name:"된장찌개", desc:"구수하고 든든한 한 끼"},
-      {name:"냉면", desc:"시원하고 쫄깃한 면 요리"},
-      {name:"순댓국", desc:"뜨끈한 국물이 일품"},
-      {name:"갈비탕", desc:"깊은 국물의 소고기 요리"},
-      {name:"비빔밥", desc:"영양 만점 비벼 먹는 밥"},
-      {name:"뚝불", desc:"뚝배기 불고기"},
-      {name:"짜장면", desc:"중화풍 국민 면 요리"},
-      {name:"짬뽕", desc:"얼큰한 해물 국물"},
-      {name:"탕수육", desc:"바삭달콤 탕수육"},
-    ]
-  },
-  일식: {
-    color: "c-pink",
-    emoji: "🍣",
-    items: [
-      {name:"스시", desc:"신선한 생선 위의 밥"},
-      {name:"규동", desc:"달짝지근한 소고기 덮밥"},
-      {name:"돈카츠", desc:"바삭한 일본식 돈까스"},
-      {name:"가츠동", desc:"달달한 돈카츠 덮밥"},
-      {name:"사케동", desc:"연어 덮밥"},
-      {name:"덮밥", desc:"간편하고 맛있는 일본식 덮밥"},
-      {name:"소바", desc:"시원하고 담백한 메밀국수"},
-      {name:"우동", desc:"쫄깃한 굵은 면 요리"},
-    ]
-  },
-  중식: {
-    color: "c-amber",
-    emoji: "🥢",
-    items: [
-      {name:"마라탕", desc:"마라 향 진한 중국식 탕"},
-      {name:"딤섬", desc:"한 입 크기 중국 만두"},
-      {name:"볶음밥", desc:"고소하게 볶은 밥"},
-      {name:"꿔바로우", desc:"바삭한 탕수육 스타일"},
-      {name:"마라샹궈", desc:"얼얼하고 향긋한 중국식 볶음"},
-    ]
-  },
-  간편식: {
-    color: "c-teal",
-    emoji: "🍱",
-    items: [
-      {name:"햄버거", desc:"빠르고 든든한 버거"},
-      {name:"샌드위치", desc:"간편한 한 끼 샌드위치"},
-      {name:"핫도그", desc:"간식 같은 가벼운 점심"},
-      {name:"컵밥", desc:"편의점 간편 컵밥"},
-      {name:"김밥", desc:"한 줄로 든든한 김밥"},
-      {name:"토스트", desc:"아침 같은 간편 점심"},
-    ]
-  },
-  분식: {
-    color: "c-blue",
-    emoji: "🌮",
-    items: [
-      {name:"떡볶이", desc:"매콤달콤 국민 분식"},
-      {name:"김밥", desc:"한 줄 가득 든든하게"},
-      {name:"라면", desc:"언제나 실패 없는 선택"},
-      {name:"쫄면", desc:"쫄깃한 비빔 쫄면"},
-      {name:"순대", desc:"당면 가득 순대"},
-      {name:"튀김", desc:"바삭한 분식집 튀김"},
-      {name:"어묵", desc:"따뜻한 어묵탕"},
-    ]
-  },
-  양식: {
-    color: "c-purple",
-    emoji: "🍝",
-    items: [
-      {name:"파스타", desc:"다양한 소스의 파스타"},
-      {name:"리조또", desc:"크리미한 이탈리안 밥"},
-      {name:"라자냐", desc:"층층이 쌓인 오븐 요리"},
-      {name:"스테이크", desc:"묵직하고 든든한 한 끼"},
-      {name:"피자", desc:"나눠 먹기 좋은 피자"},
-      {name:"케이크", desc:"달콤한 점심 후 디저트"},
-      {name:"샐러드", desc:"가볍고 건강한 점심"},
-      {name:"그라탕", desc:"치즈 가득 오븐 요리"},
-    ]
-  },
+const menus={
+  한식:{color:"c-green",emoji:"🍚",items:[
+    {name:"제육볶음",desc:"매콤달콤한 돼지고기 볶음"},
+    {name:"김치찌개",desc:"얼큰한 국민 찌개"},
+    {name:"된장찌개",desc:"구수하고 든든한 한 끼"},
+    {name:"냉면",desc:"시원하고 쫄깃한 면 요리"},
+    {name:"순댓국",desc:"뜨끈한 국물이 일품"},
+    {name:"갈비탕",desc:"깊은 국물의 소고기 요리"},
+    {name:"비빔밥",desc:"영양 만점 비벼 먹는 밥"},
+    {name:"뚝불",desc:"뚝배기 불고기"},
+    {name:"짜장면",desc:"중화풍 국민 면 요리"},
+    {name:"짬뽕",desc:"얼큰한 해물 국물"},
+    {name:"탕수육",desc:"바삭달콤 탕수육"},
+  ]},
+  일식:{color:"c-pink",emoji:"🍣",items:[
+    {name:"스시",desc:"신선한 생선 위의 밥"},
+    {name:"규동",desc:"달짝지근한 소고기 덮밥"},
+    {name:"돈카츠",desc:"바삭한 일본식 돈까스"},
+    {name:"가츠동",desc:"달달한 돈카츠 덮밥"},
+    {name:"사케동",desc:"연어 덮밥"},
+    {name:"덮밥",desc:"간편하고 맛있는 일본식 덮밥"},
+    {name:"소바",desc:"시원하고 담백한 메밀국수"},
+    {name:"우동",desc:"쫄깃한 굵은 면 요리"},
+  ]},
+  중식:{color:"c-amber",emoji:"🥢",items:[
+    {name:"마라탕",desc:"마라 향 진한 중국식 탕"},
+    {name:"딤섬",desc:"한 입 크기 중국 만두"},
+    {name:"볶음밥",desc:"고소하게 볶은 밥"},
+    {name:"꿔바로우",desc:"바삭한 탕수육 스타일"},
+    {name:"마라샹궈",desc:"얼얼하고 향긋한 중국식 볶음"},
+  ]},
+  간편식:{color:"c-teal",emoji:"🍱",items:[
+    {name:"햄버거",desc:"빠르고 든든한 버거"},
+    {name:"샌드위치",desc:"간편한 한 끼 샌드위치"},
+    {name:"핫도그",desc:"간식 같은 가벼운 점심"},
+    {name:"컵밥",desc:"편의점 간편 컵밥"},
+    {name:"김밥",desc:"한 줄로 든든한 김밥"},
+    {name:"토스트",desc:"아침 같은 간편 점심"},
+  ]},
+  분식:{color:"c-blue",emoji:"🌮",items:[
+    {name:"떡볶이",desc:"매콤달콤 국민 분식"},
+    {name:"김밥",desc:"한 줄 가득 든든하게"},
+    {name:"라면",desc:"언제나 실패 없는 선택"},
+    {name:"쫄면",desc:"쫄깃한 비빔 쫄면"},
+    {name:"순대",desc:"당면 가득 순대"},
+    {name:"튀김",desc:"바삭한 분식집 튀김"},
+    {name:"어묵",desc:"따뜻한 어묵탕"},
+  ]},
+  양식:{color:"c-purple",emoji:"🍝",items:[
+    {name:"파스타",desc:"다양한 소스의 파스타"},
+    {name:"리조또",desc:"크리미한 이탈리안 밥"},
+    {name:"라자냐",desc:"층층이 쌓인 오븐 요리"},
+    {name:"스테이크",desc:"묵직하고 든든한 한 끼"},
+    {name:"피자",desc:"나눠 먹기 좋은 피자"},
+    {name:"샐러드",desc:"가볍고 건강한 점심"},
+    {name:"그라탕",desc:"치즈 가득 오븐 요리"},
+  ]},
 };
-const cats = Object.keys(menus);
-let selected = new Set();
-const grid = document.getElementById("catGrid");
-cats.forEach(cat => {
-  const d = menus[cat];
-  const b = document.createElement("button");
-  b.className = `cat-btn ${d.color}`;
-  b.innerHTML = `<span class="cat-emoji">${d.emoji}</span>${cat}`;
-  b.onclick = () => {
+const cats=Object.keys(menus);
+let selected=new Set();
+const grid=document.getElementById("catGrid");
+cats.forEach(cat=>{
+  const d=menus[cat];
+  const b=document.createElement("button");
+  b.className=`cat-btn ${d.color}`;
+  b.innerHTML=`<span class="cat-emoji">${d.emoji}</span>${cat}`;
+  b.onclick=()=>{
     b.classList.toggle("active");
-    selected.has(cat) ? selected.delete(cat) : selected.add(cat);
+    selected.has(cat)?selected.delete(cat):selected.add(cat);
   };
   grid.appendChild(b);
 });
-function recommend() {
-  const pool = selected.size > 0
-    ? cats.filter(c => selected.has(c))
-    : cats;
-  const cat = pool[Math.floor(Math.random() * pool.length)];
-  const d = menus[cat];
-  const item = d.items[Math.floor(Math.random() * d.items.length)];
-  const colorMap = {
-    "c-green":  {bg:"#EAF3DE", color:"#3B6D11"},
-    "c-pink":   {bg:"#FBEAF0", color:"#993556"},
-    "c-amber":  {bg:"#FAEEDA", color:"#854F0B"},
-    "c-teal":   {bg:"#E1F5EE", color:"#0F6E56"},
-    "c-blue":   {bg:"#E6F1FB", color:"#185FA5"},
-    "c-purple": {bg:"#EEEDFE", color:"#534AB7"},
-  };
-  const cm = colorMap[d.color];
-  const box = document.getElementById("resultBox");
-  box.innerHTML = `
+const colorMap={
+  "c-green":{bg:"#EAF3DE",color:"#3B6D11"},
+  "c-pink":{bg:"#FBEAF0",color:"#993556"},
+  "c-amber":{bg:"#FAEEDA",color:"#854F0B"},
+  "c-teal":{bg:"#E1F5EE",color:"#0F6E56"},
+  "c-blue":{bg:"#E6F1FB",color:"#185FA5"},
+  "c-purple":{bg:"#EEEDFE",color:"#534AB7"},
+};
+function recommend(){
+  const pool=selected.size>0?cats.filter(c=>selected.has(c)):cats;
+  const cat=pool[Math.floor(Math.random()*pool.length)];
+  const d=menus[cat];
+  const item=d.items[Math.floor(Math.random()*d.items.length)];
+  const cm=colorMap[d.color];
+  const box=document.getElementById("resultBox");
+  box.innerHTML=`
     <span class="result-cat" style="background:${cm.bg};color:${cm.color}">${d.emoji} ${cat}</span>
     <div class="result-menu pop">${item.name}</div>
     <div class="result-desc">${item.desc}</div>
