@@ -1,0 +1,48 @@
+/* ── 0. 베이스 리셋 ───────────────── */
+:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}
+img{max-width:100%}
+[hidden]:not([hidden=until-found i]){display:none!important}
+
+/* ── 1. 명륜당 장면 ───────────────── */
+/* Layout: one full-screen scene — 명륜당(중앙 강당 + 좌우 익헌) 처마 아래 한글 자모 줄, 그 앞으로 행단의 은행잎이 떨어짐. 글은 왼쪽 아래(폰은 하단). */
+:root{
+  --paper:#efe4cc; --ink:#24221c; --ink-soft:#67624f;
+  --strand:#2d2a22; --thread:rgba(45,42,34,.16); --shadow:rgba(46,38,20,.10); --roof-shadow:rgba(46,36,16,.30);
+  --gold:#b07d12; --leaf:#e0ae2e; --leaf-edge:#b8861b; --seal:#9c3a2a;
+  --tile-a:#2e3133; --tile-b:#51565a; --tile-line:rgba(0,0,0,.26); --ridge:#e4dfd2;
+  --display:"Nanum Myeongjo","Noto Serif KR","AppleMyungjo",serif;
+  --body:"Gowun Dodum","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+}
+/* 재생 크림지 한 가지 룩으로 고정 (다크 모드에서도 종이 그대로) */
+html,body{height:100%;overflow:hidden}
+body{background-color:var(--paper);background-image:var(--fiber,none),radial-gradient(ellipse at 50% 40%,rgba(255,250,236,.55),rgba(160,128,80,.10) 100%);background-size:420px 420px,100% 100%;color:var(--ink);font-family:var(--body);touch-action:none;-webkit-user-select:none;user-select:none;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+#scene{position:fixed;inset:0;width:100%;height:100%;display:block;cursor:crosshair}
+.copy{position:fixed;left:max(6vw,16px,env(safe-area-inset-left,0px));bottom:calc(12vh + env(safe-area-inset-bottom,0px));
+  max-width:290px;pointer-events:none;display:flex;flex-direction:column;gap:14px}
+.seal{width:38px;height:38px;border:1.5px solid var(--seal);color:var(--seal);font-family:var(--display);font-weight:800;
+  font-size:14px;line-height:1.05;display:grid;place-items:center;text-align:center;border-radius:3px;letter-spacing:.05em}
+.eyebrow{font-size:12px;letter-spacing:.14em;color:var(--ink-soft)}
+h1{margin:0;font-family:var(--display);font-weight:800;font-size:clamp(28px,3.2vw,40px);line-height:1.18;text-wrap:balance;letter-spacing:-.01em}
+h1 em{font-style:normal;color:var(--gold)}
+.lede{margin:0;font-size:14.5px;line-height:1.75;color:var(--ink)}
+.meta{font-size:12px;color:var(--ink-soft);letter-spacing:.04em}
+.hint{font-size:13px;color:var(--gold);display:flex;align-items:center;gap:8px}
+.hint::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor;animation:pulse 1.8s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.25}}
+.sound{position:fixed;top:calc(16px + env(safe-area-inset-top,0px));right:max(16px,env(safe-area-inset-right,0px));
+  font:inherit;font-size:13px;color:var(--ink);background:transparent;border:1px solid var(--ink-soft);border-radius:999px;
+  padding:8px 14px;display:flex;align-items:center;gap:8px;cursor:pointer}
+.sound:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.sound .dot{width:8px;height:8px;border-radius:50%;border:1.5px solid var(--ink-soft)}
+.sound[aria-pressed="true"] .dot{background:var(--gold);border-color:var(--gold)}
+@media (max-width:719px){
+  .copy{left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));
+    bottom:calc(22px + env(safe-area-inset-bottom,0px));max-width:none;gap:10px}
+  .seal{display:none}
+  h1{font-size:26px}
+  .lede{font-size:13.5px;line-height:1.65}
+}
+@media (prefers-reduced-motion: reduce){.hint::before{animation:none}}
