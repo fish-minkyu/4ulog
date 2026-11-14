@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="ko">
+    <head>
+        <meta charset="utf-8" />
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1, viewport-fit=cover"
+        />
+        <title>새벽 B사이드</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            rel="stylesheet"
+            href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans+KR:wght@400;600&family=VT323&display=swap"
+        />
+        <link rel="stylesheet" href="css/cassettePlayer.css" />
+    </head>
+    <body>
+        <main class="app">
+            <div class="top">
+                <div class="stage" id="stage">
+                    <img
+                        id="base"
+                        alt="보라색 B사이드 60분 카세트가 꽂힌 카세트 덱 그림. 아래에 되감기, 재생, 정지, 빨리 감기 버튼이 있다"
+                    />
+                </div>
+                <div class="pad">
+                    <p class="foot">
+                        ◀◀ 이전 곡 · ▶ 재생 · ■ 정지 · ▶▶ 다음 곡
+                    </p>
+                    <section class="now" aria-live="polite" hidden>
+                        <div class="now-top">
+                            <span class="led" id="led"></span
+                            ><span id="state">Stop</span
+                            ><span class="count" id="count">01 / 06</span>
+                        </div>
+                        <div>
+                            <h1 class="now-title" id="title"></h1>
+                            <p class="now-artist" id="artist"></p>
+                        </div>
+                        <div class="bar"><i id="prog"></i></div>
+                        <div class="times">
+                            <span id="cur">0:00</span><span id="dur">0:00</span>
+                        </div>
+                    </section>
+                </div>
+            </div>
+
+            <section class="list pad" aria-label="테이프와 수록곡">
+                <div
+                    class="tabs"
+                    id="tabs"
+                    role="tablist"
+                    aria-label="테이프 고르기"
+                ></div>
+                <div class="list-head">
+                    <h2>
+                        <b id="side">A</b> SIDE
+                        <span class="tape-name" id="tapeName"></span>
+                    </h2>
+                    <span class="meta" id="meta"></span>
+                </div>
+                <ol class="tracks" id="list"></ol>
+            </section>
+        </main>
+
+        <script src="js/tapes.js" charset="utf-8"></script>
+        <script src="js/player.js" charset="utf-8"></script>
+    </body>
+</html>
