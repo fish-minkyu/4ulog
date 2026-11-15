@@ -83,7 +83,7 @@ const TAPES = [
                 dur: 263.33,
             },
             {
-                title: "daisy.",
+                title: "daisy",
                 artist: "wave to earth",
                 src: "./music/daisy.m4a",
                 dur: 218.59,
@@ -104,7 +104,7 @@ const TAPES = [
     },
     {
         name: "Pop Songs",
-        title: "DJ fish-minkyu 픽",
+        title: "Pop Songs",
         side: "C",
         color: "#9cc3ee",
         img: "./image/cassettePlayer/tape-3.jpg",
