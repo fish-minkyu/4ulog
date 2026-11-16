@@ -1,647 +1,429 @@
-/* Layout: phone-first music player — deck art edge to edge and the now-playing card stay pinned at the top, the tape's song list scrolls under them. Single dark look by choice. */
+/* 레이아웃: 흰 린넨 천 위에 빨간 플레이어 하나. 아래로 재생 정보, 테이프 선반, 손글씨 곡 목록이 한 줄로 이어집니다.
+   밝은 한 가지 분위기로만 만들었습니다(다크 모드 없음). */
 :root {
-    --bench: #000000;
-    --panel: #0e0e10;
-    --panel-line: #1f1f24;
-    --paper: #ecebf0;
-    --violet: #b18cff;
-    --muted: #8a8892;
-    --dim: #6c6a74;
-    --rule: #1a1a1f;
-    --f-body:
-        "IBM Plex Sans KR", "Apple SD Gothic Neo", "Noto Sans KR", system-ui,
-        sans-serif;
-    --f-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
-    --gut-l: max(16px, env(safe-area-inset-left, 0px));
-    --gut-r: max(16px, env(safe-area-inset-right, 0px));
-    color-scheme: dark;
+    color-scheme: light;
+    --linen: #efede7; /* 배경 천 */
+    --linen-shade: #e3e0d8; /* 천의 결, 구분선 */
+    --paper: #fbfaf5; /* 곡 목록 종이 */
+    --ink: #1f1c1a; /* 글씨 */
+    --ink-soft: #7c766d; /* 보조 글씨 */
+    --red: #d3151b; /* 플레이어 빨강 */
+    --font-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
+    --font-hand: "Gaegu", "Nanum Pen Script", "Apple SD Gothic Neo", cursive;
+    --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
 }
+
 * {
     box-sizing: border-box;
 }
-[hidden] {
-    display: none !important;
-}
-html {
-    padding-top: env(safe-area-inset-top, 0px);
-    padding-bottom: env(safe-area-inset-bottom, 0px);
-    background: var(--bench);
-}
+html,
 body {
     margin: 0;
-    color: var(--paper);
-    font-family: var(--f-body);
-    font-size: 15px;
-    background: var(--bench);
-    -webkit-font-smoothing: antialiased;
-    -webkit-text-size-adjust: 100%;
 }
-body::before {
-    content: "";
-    position: fixed;
-    inset: 0 0 auto;
-    height: env(safe-area-inset-top, 0px);
-    z-index: 10;
-    background: var(--bench);
-}
-.app {
-    max-width: 440px;
-    margin: 0 auto;
-    min-height: 100%;
-    display: flex;
-    flex-direction: column;
-}
-.pad {
-    padding-left: var(--gut-l);
-    padding-right: var(--gut-r);
+body {
+    background-color: var(--linen);
+    background-image:
+        repeating-linear-gradient(
+            0deg,
+            rgba(120, 110, 95, 0.045) 0 1px,
+            transparent 1px 3px
+        ),
+        repeating-linear-gradient(
+            90deg,
+            rgba(120, 110, 95, 0.04) 0 1px,
+            transparent 1px 3px
+        ),
+        radial-gradient(
+            120% 60% at 20% 0%,
+            rgba(255, 255, 255, 0.7),
+            transparent 60%
+        );
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-weight: 600;
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
 }
 
-/* ---- pinned top: deck + now playing ---- */
-.top {
-    position: sticky;
-    top: env(safe-area-inset-top, 0px);
-    z-index: 5;
-    background: var(--bench);
-    padding-bottom: 12px;
-    box-shadow: 0 10px 18px -6px rgba(0, 0, 0, 0.9);
+.app {
+    width: 100%;
+    max-width: 440px;
+    margin: 0 auto;
+    padding: 20px 16px 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
 }
-.stage {
+
+/* ───── 플레이어 ───── */
+.deck {
     position: relative;
     width: 100%;
-    aspect-ratio: 1502/1047;
-    container-type: inline-size;
-    max-width: 100%;
-    overflow: hidden;
+    aspect-ratio: 1380 / 1515;
+    z-index: 2;
+    filter: drop-shadow(0 14px 16px rgba(60, 40, 30, 0.28));
     user-select: none;
     -webkit-user-select: none;
-    -webkit-touch-callout: none;
-    background: #000;
     touch-action: manipulation;
 }
-@media (min-width: 480px) {
-    .app {
-        padding-top: 16px;
-    }
-    .stage {
-        border-radius: 14px;
-    }
-    .top .stage {
-        width: calc(100% - 32px);
-        margin: 0 auto;
-    }
-}
-.stage img {
-    display: block;
+.deck-img {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
-    max-width: none;
+    display: block;
     pointer-events: none;
     -webkit-user-drag: none;
 }
-.layer {
+
+/* 테이프가 들어가는 자리 (덱 그림 기준 좌표) */
+.tape-slot {
+    position: absolute;
+    left: 17.03%;
+    top: 12.21%;
+    width: 67.39%;
+    aspect-ratio: 1975 / 1215;
+}
+.tape-slot .tape {
     position: absolute;
     inset: 0;
 }
-canvas.layer {
+
+/* ───── 테이프 (덱과 선반에서 같이 씀) ───── */
+.tape {
+    position: relative;
+    display: block;
+    width: 100%;
+    aspect-ratio: 1975 / 1215;
+    container-type: inline-size;
+}
+.tape > img {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
+    display: block;
+    pointer-events: none;
+    -webkit-user-drag: none;
+}
+.hub {
+    position: absolute;
+    top: 48.6%;
+    width: 10.6%;
+    aspect-ratio: 1;
+    transform: translate(-50%, -50%);
+}
+.hub.l {
+    left: 29.37%;
+}
+.hub.r {
+    left: 70.42%;
+}
+.hub svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+.tape-label {
+    position: absolute;
+    left: 9%;
+    right: 9%;
+    margin: 0;
+    text-align: center;
+    font-family: var(--font-hand);
+    font-weight: 700;
+    font-size: 8.4cqw;
+    line-height: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    transform: translateY(-50%) rotate(-1.2deg);
     pointer-events: none;
 }
-.reel {
+
+@keyframes spin {
+    to {
+        transform: rotate(-360deg);
+    }
+}
+.tape.is-playing .hub svg {
+    animation: spin 2.4s linear infinite;
+}
+.tape.is-ff .hub svg {
+    animation: spin 0.32s linear infinite;
+}
+.tape.is-rew .hub svg {
+    animation: spin 0.32s linear infinite reverse;
+}
+
+/* ───── 버튼 5개: 덱 그림에서 버튼 부분만 오려 붙인 조각이 눌리면 아래로 내려갑니다 ───── */
+.keys {
     position: absolute;
-    border-radius: 50%;
+    inset: 0;
+    pointer-events: none;
+}
+.key {
+    position: absolute;
+    top: 74.92%;
+    height: 17.49%;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    background: #140606;
+    border-radius: 5% / 4%;
     overflow: hidden;
-    will-change: transform;
-    -webkit-mask-image: radial-gradient(circle, #000 88%, transparent 100%);
-    mask-image: radial-gradient(circle, #000 88%, transparent 100%);
+    cursor: pointer;
+    pointer-events: auto;
+    touch-action: none;
 }
-.reel img {
-    position: absolute;
-    height: auto;
-}
-.slot {
-    background: #080616;
-}
-.btn {
-    transition:
-        transform 0.07s ease,
-        filter 0.07s ease;
-}
-.btn.down {
-    transform: translateY(1.6%) scale(0.982);
-    filter: brightness(0.7);
-}
-.btn::after {
+.key::before {
+    /* 버튼 조각 */
     content: "";
     position: absolute;
     inset: 0;
-    opacity: 0;
-    transition: opacity 0.07s;
-    background: linear-gradient(
-        168deg,
-        rgba(0, 0, 0, 0.5) 0%,
-        rgba(0, 0, 0, 0) 20%
-    );
+    background-image: url("../assets/player.webp");
+    background-size: var(--bg-size);
+    background-position: var(--bg-pos);
+    border-radius: inherit;
+    transition:
+        transform 0.07s ease-out,
+        filter 0.07s ease-out;
 }
-.btn.down::after {
-    opacity: 1;
-}
-.hit {
+.key::after {
+    /* 눌렸을 때 위쪽 그림자 */
+    content: "";
     position: absolute;
     inset: 0;
-    background: transparent;
-    border: 0;
-    padding: 0;
-    margin: 0;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-    touch-action: none;
-}
-.hit:focus-visible {
-    outline: none;
-    background: rgba(200, 180, 255, 0.2);
-}
-.lamp {
-    position: absolute;
-    border-radius: 50%;
-    pointer-events: none;
-    transition: opacity 0.25s;
-}
-.lamp.off {
-    background: radial-gradient(
-        circle,
-        rgba(24, 16, 44, 0.85) 0 45%,
-        rgba(24, 16, 44, 0) 70%
-    );
-    opacity: 1;
-}
-.lamp.glow {
-    background: radial-gradient(
-        circle,
-        #fbefff 0 8%,
-        #d9a6ff 18%,
-        rgba(185, 110, 255, 0.6) 30%,
-        rgba(160, 90, 255, 0.18) 50%,
-        rgba(150, 80, 255, 0) 70%
-    );
+    border-radius: inherit;
+    box-shadow: inset 0 10px 10px -6px rgba(0, 0, 0, 0.75);
     opacity: 0;
+    transition: opacity 0.07s ease-out;
 }
-body.playing .lamp.glow {
+.key.is-down::before {
+    transform: translateY(3.2%) scale(0.985);
+    filter: brightness(0.78);
+}
+.key.is-down::after {
     opacity: 1;
-    animation: lamp 1.6s ease-in-out infinite;
 }
-@keyframes lamp {
-    0%,
-    100% {
-        opacity: 1;
-    }
-    45% {
-        opacity: 0.6;
-    }
-    55% {
-        opacity: 1;
-        transform: scale(1.08);
-    }
-}
-
-.foot {
-    margin: 10px 0 0;
-    font-size: 12px;
-    color: var(--muted);
-    text-align: center;
-}
-
-.now {
-    margin-top: 10px;
-    background: var(--panel);
-    border: 1px solid var(--panel-line);
-    border-radius: 14px;
-    padding: 12px 14px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-.now-top {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-family: var(--f-mono);
-    font-size: 11px;
-    letter-spacing: 0.14em;
-    color: var(--muted);
-    text-transform: uppercase;
-}
-.led {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: #2a2830;
-    transition:
-        background 0.2s,
-        box-shadow 0.2s;
-}
-.led.on {
-    background: #f3e2ff;
-    box-shadow:
-        0 0 3px 1px #e0b8ff,
-        0 0 9px 3px #b46cff,
-        0 0 18px 6px rgba(150, 80, 255, 0.45);
-    animation: twinkle 1.6s ease-in-out infinite;
-}
-@keyframes twinkle {
-    0%,
-    100% {
-        opacity: 1;
-        box-shadow:
-            0 0 3px 1px #e0b8ff,
-            0 0 9px 3px #b46cff,
-            0 0 18px 6px rgba(150, 80, 255, 0.45);
-    }
-    45% {
-        opacity: 0.75;
-        box-shadow:
-            0 0 2px 1px #d8a8ff,
-            0 0 6px 2px #a35cf5,
-            0 0 10px 3px rgba(150, 80, 255, 0.25);
-    }
-    55% {
-        opacity: 1;
-        box-shadow:
-            0 0 4px 2px #f0d4ff,
-            0 0 12px 4px #c07cff,
-            0 0 24px 8px rgba(160, 90, 255, 0.5);
-    }
-}
-.now-top .count {
-    margin-left: auto;
-    font-variant-numeric: tabular-nums;
-}
-.now-title {
-    margin: 0;
-    font-size: 18px;
-    font-weight: 600;
-    line-height: 1.3;
-    color: var(--paper);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.now-artist {
-    margin: 2px 0 0;
-    font-size: 13px;
-    color: var(--muted);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    min-height: 1.2em;
-}
-.bar {
-    height: 3px;
-    background: #26252b;
-    border-radius: 2px;
-    overflow: hidden;
-}
-.bar i {
-    display: block;
-    height: 100%;
-    width: 0;
-    background: var(--violet);
-}
-.times {
-    display: flex;
-    justify-content: space-between;
-    font-family: var(--f-mono);
-    font-size: 11.5px;
-    color: var(--muted);
-    font-variant-numeric: tabular-nums;
-}
-
-/* LCD: 덱의 세로 액정 위에 실제 글씨를 띄움 (글자 크기는 그림 폭에 맞춰 같이 커지고 작아짐) */
-.lcd {
-    position: absolute;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1.1cqw 0 1.3cqw;
-    pointer-events: none;
-    color: rgba(38, 10, 92, 0.86);
-    font-family: "VT323", "IBM Plex Mono", ui-monospace, monospace;
-    text-shadow: 0 0 0.25cqw rgba(255, 255, 255, 0.35);
-    line-height: 1;
-    text-align: center;
-    font-variant-numeric: tabular-nums;
-}
-.lcd .ls {
-    font-size: 1.9cqw;
-    letter-spacing: 0.2cqw;
-}
-.lcd .lb {
-    font-size: 5.6cqw;
-    margin-top: -0.2cqw;
-}
-/* 곡 제목: 액정 폭이 좁아서 옛날 카오디오처럼 옆으로 흘러감 */
-.lcd .mq {
-    width: 100%;
-    overflow: hidden;
-    white-space: nowrap;
-    font-family: "IBM Plex Sans KR", "Apple SD Gothic Neo", sans-serif;
-    font-size: 1.75cqw;
-    font-weight: 600;
-    -webkit-mask-image: linear-gradient(
-        90deg,
-        transparent 0,
-        #000 8%,
-        #000 92%,
-        transparent 100%
-    );
-    mask-image: linear-gradient(
-        90deg,
-        transparent 0,
-        #000 8%,
-        #000 92%,
-        transparent 100%
-    );
-}
-.lcd .mq span {
-    display: inline-block;
-    padding-left: 100%;
-    animation: mq var(--mqd, 8s) linear infinite;
-    animation-play-state: paused;
-}
-body.playing .lcd .mq span {
-    animation-play-state: running;
-}
-@keyframes mq {
-    to {
-        transform: translateX(-100%);
-    }
-}
-.lcd .ln {
-    font-size: 2.6cqw;
-}
-.lcd .lt {
-    font-size: 2.7cqw;
-}
-.lcd .lst {
-    font-size: 2cqw;
-    letter-spacing: 0.15cqw;
-}
-.lcd .vu {
-    display: flex;
-    gap: 0.35cqw;
-    align-items: flex-end;
-    height: 2.2cqw;
-}
-.lcd .vu i {
-    display: block;
-    width: 0.7cqw;
-    height: 20%;
-    background: currentColor;
-    opacity: 0.8;
-}
-.lcd.blink .lst {
-    animation: lcdblink 0.5s steps(1) infinite;
-}
-@keyframes lcdblink {
-    50% {
-        opacity: 0;
-    }
-}
-.door {
-    overflow: hidden;
-}
-.cass {
-    will-change: transform;
-}
-.cass > img {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-}
-
-.tracks li.empty {
-    padding: 28px 4px;
-    text-align: center;
-    color: var(--muted);
-    font-size: 14px;
-    border: 0;
-}
-
-/* ---- tape tabs ---- */
-.tabs {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 6px;
-    padding: 10px 0 4px;
-}
-.tab {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-    min-height: 40px;
-    padding: 6px 4px;
-    border-radius: 10px;
-    border: 1px solid var(--panel-line);
-    background: var(--panel);
-    color: var(--muted);
-    font: inherit;
-    font-size: 12.5px;
-    letter-spacing: -0.01em;
-    cursor: pointer;
-    -webkit-tap-highlight-color: transparent;
-    min-width: 0;
-    white-space: normal;
-    line-height: 1.15;
-    text-align: center;
-    transition:
-        background 0.15s,
-        color 0.15s,
-        border-color 0.15s;
-}
-.tab span {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    word-break: keep-all;
-}
-.tab .dot {
-    flex: none;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--tape);
-    opacity: 0.55;
-}
-.tab[aria-selected="true"] {
-    color: var(--paper);
-    background: #18171e;
-    border-color: #34323d;
-    font-weight: 600;
-}
-.tab[aria-selected="true"] .dot {
-    opacity: 1;
-    box-shadow: 0 0 8px var(--tape);
-}
-.tab:focus-visible {
-    outline: 2px solid var(--violet);
+.key:focus-visible {
+    outline: 3px solid #fff;
     outline-offset: 2px;
 }
-.tab:active {
-    transform: scale(0.97);
-}
-.list-head .tape-name {
-    font-size: 12px;
-    font-weight: 400;
-    letter-spacing: 0.02em;
-    color: var(--muted);
-    margin-left: 6px;
-}
 
-/* ---- song list ---- */
-.list {
-    padding-top: 6px;
-    padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+/* ───── 재생 정보 ───── */
+.readout {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
-.list-head {
+.readout-row {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
     gap: 12px;
-    padding: 10px 2px 8px;
-    border-bottom: 1px solid #26252b;
 }
-.list-head h2 {
+.now {
     margin: 0;
-    font-size: 13px;
-    font-weight: 600;
-    letter-spacing: 0.12em;
-    color: var(--paper);
-}
-.list-head h2 b {
+    font-style: italic;
+    font-weight: 800;
     font-size: 17px;
-    margin-right: 2px;
+    letter-spacing: 0.01em;
+    min-width: 0;
+    overflow-wrap: anywhere;
 }
-.list-head .meta {
-    font-family: var(--f-mono);
-    font-size: 11px;
-    color: var(--muted);
+.time {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    color: var(--ink-soft);
+    white-space: nowrap;
 }
-ol.tracks {
+.bar {
+    height: 14px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    touch-action: none;
+}
+.bar {
+    position: relative;
+}
+.bar::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--linen-shade);
+}
+.bar-fill {
+    position: relative;
+    height: 4px;
+    width: 0%;
+    border-radius: 2px;
+    background: var(--red);
+}
+.bar:focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 2px;
+}
+.hint {
+    margin: 0;
+    font-size: 12px;
+    color: var(--ink-soft);
+    font-weight: 600;
+}
+
+/* ───── 선반 ───── */
+.head {
+    margin: 0 0 10px;
+    font-style: italic;
+    font-weight: 800;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
+}
+.shelf {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+.shelf-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 0;
+    margin: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    color: inherit;
+    text-align: center;
+    cursor: pointer;
+    min-width: 0;
+}
+.shelf-spot {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1975 / 1215;
+    border-radius: 6px;
+}
+.shelf-spot .tape {
+    filter: drop-shadow(0 3px 4px rgba(60, 40, 30, 0.3));
+    transition: transform 0.15s ease-out;
+}
+.shelf-item:hover .tape {
+    transform: translateY(-3px);
+}
+.shelf-item.is-loaded .shelf-spot {
+    outline: 2px dashed var(--linen-shade);
+    outline-offset: -2px;
+}
+.shelf-item.is-loaded .tape {
+    visibility: hidden;
+}
+.shelf-name {
+    font-size: 12px;
+    overflow-wrap: anywhere;
+}
+.shelf-item.is-loaded .shelf-name {
+    color: var(--red);
+}
+.shelf-item:focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: 4px;
+    border-radius: 6px;
+}
+
+/* ───── 곡 목록 ───── */
+.card {
+    background: var(--paper);
+    border-radius: 6px;
+    padding: 16px 16px 8px;
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.8) inset,
+        0 6px 14px rgba(60, 40, 30, 0.1);
+}
+.tracks {
     list-style: none;
     margin: 0;
     padding: 0;
 }
 .tracks li {
-    border-bottom: 1px solid var(--rule);
-}
-.tracks li:last-child {
-    border-bottom: 0;
+    border-top: 1px solid var(--linen-shade);
 }
 .track {
     width: 100%;
-    min-height: 56px;
-    display: grid;
-    grid-template-columns: 30px 1fr auto;
-    align-items: center;
+    display: flex;
+    align-items: baseline;
     gap: 10px;
-    background: none;
+    padding: 9px 2px;
     border: 0;
-    padding: 8px 2px;
+    background: none;
     color: inherit;
     text-align: left;
+    font-family: var(--font-hand);
+    font-size: 21px;
+    line-height: 1.2;
     cursor: pointer;
-    font: inherit;
-    -webkit-tap-highlight-color: transparent;
-    border-radius: 8px;
-}
-.track:active {
-    background: #121216;
-}
-.track:focus-visible {
-    outline: 2px solid var(--violet);
-    outline-offset: -2px;
 }
 .track .no {
-    font-family: var(--f-mono);
+    font-family: var(--font-mono);
     font-size: 12px;
-    color: var(--dim);
-    display: flex;
-    align-items: center;
-}
-.track .name {
-    font-family: var(--f-body);
-    font-size: 16px;
-    font-weight: 400;
-    line-height: 1.35;
-    min-width: 0;
-    overflow-wrap: anywhere;
-    color: var(--paper);
-}
-.track .len {
-    font-family: var(--f-mono);
-    font-size: 12px;
-    color: var(--dim);
+    color: var(--ink-soft);
     font-variant-numeric: tabular-nums;
 }
-.track .name .t {
-    display: block;
+.track .ttl {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    overflow-wrap: anywhere;
 }
-.track .name .ar {
-    display: block;
-    font-size: 12.5px;
-    color: var(--dim);
-    margin-top: 1px;
+.track .artist {
+    font-size: 16px;
+    color: var(--ink-soft);
 }
-.track[aria-current="true"] .name .t {
-    color: var(--violet);
-    font-weight: 600;
+.track .dur {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
 }
-.eq {
-    display: none;
-    gap: 2px;
-    align-items: flex-end;
-    height: 12px;
-    width: 14px;
+.track.is-current .name {
+    color: var(--red);
+    font-weight: 700;
 }
-.eq i {
-    display: block;
-    width: 3px;
-    background: var(--violet);
-    height: 40%;
+.track.is-current .no,
+.track.is-current .dur {
+    color: var(--red);
 }
-.track[aria-current="true"] .eq {
-    display: inline-flex;
+.track:focus-visible {
+    outline: 2px solid var(--ink);
+    outline-offset: -2px;
 }
-.track[aria-current="true"] .num {
-    display: none;
+.empty {
+    margin: 0;
+    padding: 12px 2px 14px;
+    font-family: var(--font-hand);
+    font-size: 20px;
+    color: var(--ink-soft);
+    border-top: 1px solid var(--linen-shade);
 }
-body.playing .eq i {
-    animation: eq 0.9s ease-in-out infinite;
-}
-.eq i:nth-child(2) {
-    animation-delay: -0.3s !important;
-}
-.eq i:nth-child(3) {
-    animation-delay: -0.6s !important;
-}
-@keyframes eq {
-    0%,
-    100% {
-        height: 30%;
-    }
-    50% {
-        height: 100%;
-    }
-}
+
 @media (prefers-reduced-motion: reduce) {
-    body.playing .eq i,
-    body.playing .lamp.glow,
-    .led.on {
-        animation: none;
+    .tape .hub svg {
+        animation-duration: 8s !important;
+    }
+    .key::before,
+    .key::after,
+    .shelf-spot .tape {
+        transition: none;
     }
 }

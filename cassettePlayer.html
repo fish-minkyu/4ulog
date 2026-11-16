@@ -2,69 +2,98 @@
 <html lang="ko">
     <head>
         <meta charset="utf-8" />
-        <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1, viewport-fit=cover"
-        />
-        <title>새벽 B사이드</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>빨간 카세트 플레이어</title>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
         <link
             rel="stylesheet"
-            href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500&family=IBM+Plex+Sans+KR:wght@400;600&family=VT323&display=swap"
+            href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,600;1,800&family=Gaegu:wght@400;700&family=IBM+Plex+Mono:wght@500&display=swap"
         />
         <link rel="stylesheet" href="css/cassettePlayer.css" />
     </head>
     <body>
         <main class="app">
-            <div class="top">
-                <div class="stage" id="stage">
-                    <img
-                        id="base"
-                        alt="보라색 B사이드 60분 카세트가 꽂힌 카세트 덱 그림. 아래에 되감기, 재생, 정지, 빨리 감기 버튼이 있다"
-                    />
+            <!-- 플레이어 본체: 빈 덱 그림 위에 테이프와 버튼을 겹쳐 놓습니다 -->
+            <section class="deck" id="deck" aria-label="카세트 플레이어">
+                <img
+                    class="deck-img"
+                    src="./image/cassettePlayer/player.webp"
+                    alt="빨간 레트로 카세트 플레이어"
+                    width="1000"
+                    height="1098"
+                />
+                <div class="tape-slot" id="tapeSlot"></div>
+                <div class="keys" id="keys">
+                    <button
+                        class="key"
+                        id="keyRew"
+                        type="button"
+                        aria-label="되감기 (이전 곡)"
+                    ></button>
+                    <button
+                        class="key"
+                        id="keyPlay"
+                        type="button"
+                        aria-label="재생"
+                        aria-pressed="false"
+                    ></button>
+                    <button
+                        class="key"
+                        id="keyFf"
+                        type="button"
+                        aria-label="빨리 감기 (다음 곡)"
+                    ></button>
+                    <button
+                        class="key"
+                        id="keyStop"
+                        type="button"
+                        aria-label="정지"
+                    ></button>
+                    <button
+                        class="key"
+                        id="keyEject"
+                        type="button"
+                        aria-label="테이프 꺼내기"
+                    ></button>
                 </div>
-                <div class="pad">
-                    <p class="foot">
-                        ◀◀ 이전 곡 · ▶ 재생 · ■ 정지 · ▶▶ 다음 곡
-                    </p>
-                    <section class="now" aria-live="polite" hidden>
-                        <div class="now-top">
-                            <span class="led" id="led"></span
-                            ><span id="state">Stop</span
-                            ><span class="count" id="count">01 / 06</span>
-                        </div>
-                        <div>
-                            <h1 class="now-title" id="title"></h1>
-                            <p class="now-artist" id="artist"></p>
-                        </div>
-                        <div class="bar"><i id="prog"></i></div>
-                        <div class="times">
-                            <span id="cur">0:00</span><span id="dur">0:00</span>
-                        </div>
-                    </section>
-                </div>
-            </div>
+            </section>
 
-            <section class="list pad" aria-label="테이프와 수록곡">
-                <div
-                    class="tabs"
-                    id="tabs"
-                    role="tablist"
-                    aria-label="테이프 고르기"
-                ></div>
-                <div class="list-head">
-                    <h2>
-                        <b id="side">A</b> SIDE
-                        <span class="tape-name" id="tapeName"></span>
-                    </h2>
-                    <span class="meta" id="meta"></span>
+            <!-- 지금 재생 중인 곡 -->
+            <section class="readout" aria-live="polite">
+                <div class="readout-row">
+                    <p class="now" id="nowTitle">테이프를 넣어 주세요</p>
+                    <p class="time" id="nowTime">0:00 / 0:00</p>
                 </div>
-                <ol class="tracks" id="list"></ol>
+                <div
+                    class="bar"
+                    id="bar"
+                    role="slider"
+                    tabindex="0"
+                    aria-label="재생 위치"
+                    aria-valuemin="0"
+                    aria-valuemax="100"
+                    aria-valuenow="0"
+                >
+                    <div class="bar-fill" id="barFill"></div>
+                </div>
+                <p class="hint" id="hint">
+                    ◀◀ ▶▶ 는 짧게 누르면 한 곡, 꾹 누르면 계속 넘어갑니다
+                </p>
+            </section>
+
+            <!-- 테이프 선반 -->
+            <section class="shelf-wrap">
+                <h2 class="head">테이프</h2>
+                <div class="shelf" id="shelf"></div>
+            </section>
+
+            <!-- 곡 목록 -->
+            <section class="card">
+                <h2 class="head" id="listHead">수록곡</h2>
+                <ol class="tracks" id="tracks"></ol>
             </section>
         </main>
-
-        <script src="js/tapes.js" charset="utf-8"></script>
-        <script src="js/player.js" charset="utf-8"></script>
+        <script src="js/tapes.js"></script>
+        <script src="js/player.js"></script>
     </body>
 </html>
