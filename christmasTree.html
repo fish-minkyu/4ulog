@@ -1,0 +1,1145 @@
+<!doctype html>
+<html lang="ko">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>사유록 · 크리스마스트리 코드 아트</title>
+        <style>
+            :root {
+                --mono:
+                    ui-monospace, "SF Mono", Menlo, Consolas,
+                    "DejaVu Sans Mono", monospace;
+            }
+            html,
+            body {
+                margin: 0;
+                height: 100%;
+                background: #0b0c11;
+            }
+            body {
+                display: flex;
+                justify-content: center;
+                overflow: hidden;
+                font-family: var(--mono);
+                color: #c9cdd8;
+                -webkit-text-size-adjust: 100%;
+            }
+            .app {
+                width: min(100vw, 52vh);
+                width: min(100vw, 52dvh);
+                height: 100vh;
+                height: 100dvh;
+                display: flex;
+                flex-direction: column;
+                box-sizing: border-box;
+                padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom);
+                font-size: clamp(10px, 2.9vw, 13px);
+            }
+            .bar {
+                display: flex;
+                justify-content: space-between;
+                align-items: baseline;
+                padding: 0.7em 1em;
+                white-space: nowrap;
+            }
+            .dim {
+                color: #6e7382;
+            }
+            canvas {
+                display: block;
+                width: 100%;
+                height: auto;
+                flex: none;
+            }
+            .stat {
+                padding: 0.5em 1em 0;
+                color: #6e7382;
+                white-space: pre;
+            }
+            .cmd {
+                font-size: 1.15em;
+                font-weight: 700;
+                color: #f0f1f5;
+            }
+            .run {
+                color: #9aa0b0;
+                font-size: 0.95em;
+            }
+            .run i {
+                display: inline-block;
+                width: 0.55em;
+                height: 0.55em;
+                border-radius: 50%;
+                background: #4c8dff;
+                margin-right: 0.5em;
+            }
+            .run.done i {
+                background: #3fbf6f;
+            }
+            .editor {
+                flex: 1;
+                min-height: 0;
+                margin: 0.3em 0.7em 0.7em;
+                background: #11131b;
+                border-radius: 6px;
+                display: flex;
+                flex-direction: column;
+                overflow: hidden;
+            }
+            .tabs {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0 1em;
+                flex: none;
+            }
+            .tab {
+                padding: 0.8em 0.6em 0.6em;
+                border-bottom: 2px solid #4c8dff;
+                color: #f0f1f5;
+            }
+            #code {
+                flex: 1;
+                min-height: 0;
+                overflow: hidden;
+                margin: 0.5em 0;
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-end;
+            }
+            .ln {
+                height: 1.55em;
+                line-height: 1.55em;
+                white-space: pre;
+                overflow: hidden;
+                flex: none;
+                border-left: 2px solid transparent;
+            }
+            .ln b {
+                display: inline-block;
+                width: 3.2em;
+                text-align: right;
+                margin-right: 1.4em;
+                color: #3d4150;
+                font-weight: 400;
+            }
+            .ln.cur {
+                background: #1b2238;
+                border-left-color: #4c8dff;
+            }
+            .ln.cur b {
+                color: #8b93a8;
+            }
+            .caret {
+                display: inline-block;
+                width: 0.6em;
+                height: 1.1em;
+                background: #e8eaf0;
+                vertical-align: text-bottom;
+            }
+            .k {
+                color: #5aa2ff;
+            }
+            .s {
+                color: #e8a45c;
+            }
+            .n {
+                color: #e8a45c;
+            }
+            .c {
+                color: #5d6272;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="app">
+            <div class="bar">
+                <span>사유록 <span class="dim">· 크리스마스 트리</span></span
+                ><span class="dim" id="clock">t 0.00s</span>
+            </div>
+            <canvas
+                id="screen"
+                aria-label="조립되며 회전하는 아스키 아트 크리스마스 트리"
+            ></canvas>
+            <div class="stat" id="stat">spin 0.0° built 0%</div>
+            <div class="bar">
+                <span class="cmd">메리 크리스마스, 감사합니다!</span
+                ><span class="run" id="run"
+                    ><i></i><span id="runTxt">running · 30 fps</span></span
+                >
+            </div>
+            <div class="editor">
+                <div class="tabs">
+                    <span class="tab">art.py</span
+                    ><span class="dim" id="lnNo">Ln 1</span>
+                </div>
+                <div id="code" aria-hidden="true"></div>
+            </div>
+        </div>
+
+        <script>
+            "use strict";
+            // ── 0. 기본 설정 ─────────────────────────────────────────────
+            const W = 96,
+                H = 50,
+                FPS = 30;
+            const BUILD_SEC = 10.5,
+                HOLD_SEC = 4,
+                SPIN_DEG = 17.7,
+                TILT = 0.22;
+            const RAMP = ".:-=+*f%#0@";
+            const GREEN = [46, 170, 82],
+                LEAF = [120, 225, 135],
+                BROWN = [120, 78, 45],
+                WHITE = [240, 240, 240],
+                SILVER = [200, 205, 215],
+                GOLD = [245, 190, 60],
+                RED = [220, 50, 50],
+                BLUE = [70, 120, 235],
+                PINK = [255, 120, 170],
+                WARM = [255, 225, 150],
+                PURPLE = [130, 110, 220];
+            const TREE = 0,
+                GLOW = 1;
+            const S_TRUNK = 0,
+                S_TREE = 0.02,
+                S_STAR = 0.45,
+                S_BALL = 0.52,
+                S_LIGHT = 0.62,
+                S_GIFT = 0.78,
+                S_SNOW = 0.9;
+            const Y0 = -1.0,
+                Y1 = 1.15,
+                GROUND = -1.2,
+                TIERS = 6,
+                TAU = Math.PI * 2;
+
+            function mulberry32(a) {
+                return function () {
+                    a |= 0;
+                    a = (a + 0x6d2b79f5) | 0;
+                    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+                    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+                    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+                };
+            }
+            const rnd = mulberry32(1225);
+            const uni = (a, b) => a + (b - a) * rnd();
+            const gauss = () =>
+                Math.sqrt(-2 * Math.log(1 - rnd())) * Math.cos(TAU * rnd());
+            const clamp = (v, a, b) => (v < a ? a : v > b ? b : v);
+
+            // ── 3D 점 구름 ───────────────────────────────────────────────
+            const P = []; // [x, y, z, nx, ny, nz, r, g, b, birth, kind, phase, noise]
+            function add(x, y, z, nx, ny, nz, c, birth, kind) {
+                P.push([
+                    x,
+                    y,
+                    z,
+                    nx,
+                    ny,
+                    nz,
+                    c[0],
+                    c[1],
+                    c[2],
+                    birth,
+                    kind || TREE,
+                    uni(0, TAU),
+                    uni(-0.08, 0.08),
+                ]);
+            }
+            function radius(t) {
+                // 층층이 톱니 모양
+                const f = (t * TIERS) % 1;
+                return (1.0 * (1 - t) + 0.03) * (1.09 - 0.2 * f);
+            }
+
+            // 1. 나무 기둥
+            for (let i = 0; i < 300; i++) {
+                const a = uni(0, TAU),
+                    y = uni(GROUND, Y0 + 0.05);
+                add(
+                    0.13 * Math.cos(a),
+                    y,
+                    0.13 * Math.sin(a),
+                    Math.cos(a),
+                    0,
+                    Math.sin(a),
+                    BROWN,
+                    S_TRUNK,
+                );
+            }
+            // 2. 잎 — 아래에서 위로 쌓인다
+            for (let i = 0; i < 9000; i++) {
+                const t = Math.pow(rnd(), 1.25),
+                    a = uni(0, TAU);
+                const inner = rnd() < 0.25 ? uni(0.55, 1) : 1;
+                const r = radius(t) * inner,
+                    f = (t * TIERS) % 1;
+                const mix = clamp(1 - f * 1.6, 0, 1) * 0.75 * inner,
+                    k = 0.55 + 0.45 * inner;
+                const c = [0, 1, 2].map(
+                    (j) => (GREEN[j] * (1 - mix) + LEAF[j] * mix) * k,
+                );
+                const nl = Math.hypot(1, 0.45);
+                add(
+                    r * Math.cos(a),
+                    Y0 + (Y1 - Y0) * t,
+                    r * Math.sin(a),
+                    Math.cos(a) / nl,
+                    0.45 / nl,
+                    Math.sin(a) / nl,
+                    c,
+                    S_TREE + (S_STAR - S_TREE) * t,
+                );
+            }
+            // 4. 오너먼트
+            {
+                const BALLS = [RED, GOLD, SILVER, BLUE, RED],
+                    NB = 36;
+                for (let i = 0; i < NB; i++) {
+                    const t = uni(0.04, 0.9),
+                        a = uni(0, TAU),
+                        rb = radius(t) * 0.98;
+                    const cx = rb * Math.cos(a),
+                        cy = Y0 + (Y1 - Y0) * t - 0.03,
+                        cz = rb * Math.sin(a);
+                    for (let j = 0; j < 70; j++) {
+                        let dx = gauss(),
+                            dy = gauss(),
+                            dz = gauss();
+                        const l = Math.hypot(dx, dy, dz) || 1;
+                        dx /= l;
+                        dy /= l;
+                        dz /= l;
+                        add(
+                            cx + 0.075 * dx,
+                            cy + 0.075 * dy,
+                            cz + 0.075 * dz,
+                            dx,
+                            dy,
+                            dz,
+                            BALLS[i % BALLS.length],
+                            S_BALL + ((S_LIGHT - S_BALL) * i) / NB,
+                        );
+                    }
+                }
+            }
+            // 5. 전구 — 나선
+            {
+                const NL = 170,
+                    BULB = [WARM, RED, GOLD, [120, 220, 255]];
+                for (let i = 0; i < NL; i++) {
+                    const t = 0.02 + (0.94 * i) / (NL - 1),
+                        a = t * TAU * 7,
+                        r = radius(t) * 1.04;
+                    add(
+                        r * Math.cos(a),
+                        Y0 + (Y1 - Y0) * t,
+                        r * Math.sin(a),
+                        Math.cos(a),
+                        0,
+                        Math.sin(a),
+                        BULB[i % 4],
+                        S_LIGHT + (S_GIFT - S_LIGHT) * t,
+                        GLOW,
+                    );
+                }
+            }
+            // 6. 선물 상자
+            {
+                const GIFTS = [
+                    [0.3, 1.25, 0.52, 0.42, RED, WHITE],
+                    [1.4, 1.35, 0.44, 0.32, GOLD, RED],
+                    [2.5, 1.2, 0.56, 0.38, WHITE, PINK],
+                    [3.6, 1.35, 0.46, 0.44, [60, 150, 90], GOLD],
+                    [4.6, 1.22, 0.42, 0.3, BLUE, SILVER],
+                    [5.5, 1.38, 0.5, 0.36, GOLD, RED],
+                ];
+                const FACES = [
+                    [0, 1],
+                    [0, -1],
+                    [2, 1],
+                    [2, -1],
+                    [1, 1],
+                ];
+                GIFTS.forEach(([ang, dist, wd, ht, box, rib], gi) => {
+                    const tw = uni(0, Math.PI),
+                        ca = Math.cos(tw),
+                        sa = Math.sin(tw);
+                    const ox = dist * Math.cos(ang),
+                        oz = dist * Math.sin(ang);
+                    const b0 = S_GIFT + ((S_SNOW - S_GIFT) * gi) / GIFTS.length;
+                    for (let i = 0; i < 900; i++) {
+                        const p = [
+                                uni(-0.5, 0.5),
+                                uni(-0.5, 0.5),
+                                uni(-0.5, 0.5),
+                            ],
+                            n = [0, 0, 0];
+                        const [ax, sg] = FACES[Math.floor(rnd() * 5)];
+                        p[ax] = 0.5 * sg;
+                        n[ax] = sg;
+                        const ribbon =
+                            Math.abs(p[0]) < 0.11 || Math.abs(p[2]) < 0.11;
+                        const x = p[0] * wd,
+                            z = p[2] * wd;
+                        add(
+                            x * ca + z * sa + ox,
+                            GROUND + ht / 2 + p[1] * ht,
+                            -x * sa + z * ca + oz,
+                            n[0] * ca + n[2] * sa,
+                            n[1],
+                            -n[0] * sa + n[2] * ca,
+                            ribbon ? rib : box,
+                            b0 + 0.02 * (p[1] + 0.5),
+                        );
+                    }
+                    for (let i = 0; i < 40; i++) {
+                        // 리본 매듭
+                        let dx = gauss(),
+                            dy = gauss(),
+                            dz = gauss();
+                        const l = Math.hypot(dx, dy, dz) || 1;
+                        dx /= l;
+                        dy /= l;
+                        dz /= l;
+                        add(
+                            ox + dx * 0.09,
+                            GROUND + ht + 0.03 + dy * 0.05,
+                            oz + dz * 0.09,
+                            dx,
+                            dy,
+                            dz,
+                            rib,
+                            b0 + 0.02,
+                        );
+                    }
+                });
+            }
+
+            // ── 8. 배경 — 별 · 행성 · 눈밭 ───────────────────────────────
+            const N = W * H;
+            const bgCh = new Uint16Array(N),
+                bgRgb = new Float32Array(N * 3);
+            const code = (s) => s.charCodeAt(0);
+            function setBg(i, ch, r, g, b) {
+                bgCh[i] = code(ch);
+                bgRgb[i * 3] = r;
+                bgRgb[i * 3 + 1] = g;
+                bgRgb[i * 3 + 2] = b;
+            }
+            for (let y = 0; y < H; y++)
+                for (let x = 0; x < W; x++) {
+                    const neb =
+                        Math.sin(x * 0.11 + 1.3) * Math.sin(y * 0.33 + 2.1) +
+                        Math.sin(x * 0.045 + y * 0.21) +
+                        0.6 * Math.sin(x * 0.27 - y * 0.4);
+                    if (neb > 0.75 && rnd() < 0.55 && y < H * 0.78)
+                        setBg(y * W + x, rnd() < 0.5 ? "." : ":", 62, 62, 62);
+                }
+            function planet(px, py, pr, color, ring, bands) {
+                const cr = Math.cos(-0.35),
+                    sr = Math.sin(-0.35);
+                for (let y = 0; y < H; y++)
+                    for (let x = 0; x < W; x++) {
+                        const dx = (x - px) / (2 * pr),
+                            dy = (y - py) / pr,
+                            d2 = dx * dx + dy * dy;
+                        let body = d2 < 1;
+                        const i = y * W + x;
+                        if (ring) {
+                            const u = dx * cr - dy * sr,
+                                v = (dx * sr + dy * cr) / 0.36,
+                                rr = Math.hypot(u, v);
+                            if (rr > 1.35 && rr < 1.85) {
+                                if (v > 0) {
+                                    setBg(i, "0", ...WHITE);
+                                    continue;
+                                }
+                                if (!body) {
+                                    setBg(
+                                        i,
+                                        "0",
+                                        ...SILVER.map((c) => c * 0.75),
+                                    );
+                                    continue;
+                                }
+                            }
+                        }
+                        if (!body) continue;
+                        const nz = Math.sqrt(Math.max(0, 1 - d2));
+                        let br = clamp(
+                            0.25 + 0.75 * (-0.45 * dx - 0.5 * dy + 0.72 * nz),
+                            0.12,
+                            1,
+                        );
+                        br *= 1 + (bands || 0) * Math.sin(dy * 9 + dx * 2);
+                        const k = clamp(br, 0, 1);
+                        setBg(
+                            i,
+                            RAMP[
+                                clamp(
+                                    Math.floor(br * RAMP.length),
+                                    0,
+                                    RAMP.length - 1,
+                                )
+                            ],
+                            color[0] * k,
+                            color[1] * k,
+                            color[2] * k,
+                        );
+                    }
+            }
+            planet(W * 0.17, H * 0.16, H * 0.075, SILVER, true);
+            planet(W * 0.85, H * 0.17, H * 0.07, BLUE, false, 0.25);
+            planet(W * 0.11, H * 0.52, H * 0.035, PURPLE);
+            const SCALE = H * 0.2545,
+                CY = H * 0.5645;
+            {
+                const gy = CY + 1.2 * SCALE;
+                for (let y = 0; y < H; y++)
+                    for (let x = 0; x < W; x++) {
+                        const e =
+                            ((x - W / 2) / (W * 0.49)) ** 2 +
+                            ((y - gy - 1) / (H * 0.085)) ** 2;
+                        if (e < 1 && rnd() < 0.93) {
+                            const g = 95 - 45 * e;
+                            setBg(y * W + x, e < 0.45 ? ":" : ".", g, g, g);
+                        }
+                    }
+            }
+            const stars = Array.from({ length: Math.floor(N / 45) }, () => ({
+                i:
+                    Math.floor(rnd() * Math.floor(H * 0.86)) * W +
+                    Math.floor(rnd() * W),
+                br: uni(0.35, 1),
+                w: uni(1, 5),
+                ph: uni(0, TAU),
+                ch: code("..·*"[Math.floor(rnd() * 4)]),
+            }));
+            const snow = Array.from({ length: Math.floor(N / 60) }, () => ({
+                x: uni(0, W),
+                y: uni(0, H),
+                v: uni(3, 9),
+                ph: uni(0, TAU),
+                ch: code("*.·"[Math.floor(rnd() * 3)]),
+                front: rnd() < 0.5,
+                born: uni(S_SNOW, 1),
+            }));
+
+            // ── 9. 한 프레임 그리기 ──────────────────────────────────────
+            const ch = new Uint16Array(N),
+                rgb = new Float32Array(N * 3),
+                zb = new Float32Array(N);
+            const LIGHT = (() => {
+                const l = Math.hypot(0.45, 0.55, 0.7);
+                return [-0.45 / l, 0.55 / l, 0.7 / l];
+            })();
+
+            function drawSnow(t, built, front) {
+                for (const s of snow) {
+                    if (s.front !== front || s.born > built) continue;
+                    const x =
+                        ((Math.floor(s.x + 1.5 * Math.sin(t * 1.3 + s.ph)) %
+                            W) +
+                            W) %
+                        W;
+                    const y = Math.floor((s.y + s.v * t) % H),
+                        i = y * W + x,
+                        g = front ? 235 : 170;
+                    ch[i] = s.ch;
+                    rgb[i * 3] = rgb[i * 3 + 1] = rgb[i * 3 + 2] = g;
+                }
+            }
+            // 별 — 점 구름 대신 칸 단위로 또렷하게 그린다 (항상 정면)
+            const CELL = 1 / 1.72; // 글자 한 칸의 가로:세로
+            const STAR_R = 4.6,
+                STAR_IN = 1.95,
+                STAR_CX = W / 2 - 0.5,
+                STAR_CY = 10.4;
+            function inStar(dx, dy) {
+                // dx, dy: 줄(row) 단위
+                const rho = Math.hypot(dx, dy),
+                    a = Math.atan2(dx, -dy) + TAU;
+                const phi = Math.abs(
+                    ((a + Math.PI / 5) % (TAU / 5)) - Math.PI / 5,
+                );
+                const s5 = Math.sin(Math.PI / 5),
+                    c5 = Math.cos(Math.PI / 5);
+                return (
+                    rho <=
+                    (STAR_R * STAR_IN * s5) /
+                        (STAR_IN * s5 * Math.cos(phi) +
+                            (STAR_R - STAR_IN * c5) * Math.sin(phi))
+                );
+            }
+            function drawStar(t, built) {
+                if (built < S_STAR) return;
+                const grow = clamp((built - S_STAR) / (S_BALL - S_STAR), 0, 1);
+                const yCut = STAR_CY + STAR_R - grow * 2 * STAR_R; // 아래에서 위로 나타난다
+                const pulse = 0.9 + 0.1 * Math.sin(t * 3);
+                for (
+                    let y = Math.floor(STAR_CY - STAR_R - 1);
+                    y <= STAR_CY + STAR_R + 1;
+                    y++
+                ) {
+                    if (y < 0 || y >= H || y < yCut) continue;
+                    for (
+                        let x = Math.floor(STAR_CX - STAR_R / CELL - 1);
+                        x <= STAR_CX + STAR_R / CELL + 1;
+                        x++
+                    ) {
+                        if (x < 0 || x >= W) continue;
+                        let cov = 0;
+                        for (let j = 0; j < 3; j++)
+                            for (let k = 0; k < 3; k++)
+                                if (
+                                    inStar(
+                                        (x + (k - 1) / 3 - STAR_CX) * CELL,
+                                        y + (j - 1) / 3 - STAR_CY,
+                                    )
+                                )
+                                    cov++;
+                        if (cov < 3) continue;
+                        const i = y * W + x,
+                            d =
+                                Math.hypot((x - STAR_CX) * CELL, y - STAR_CY) /
+                                STAR_R;
+                        const fresh = y - yCut < 1 && grow < 1;
+                        const k = fresh ? 1 : pulse * (1 - 0.25 * d);
+                        ch[i] = code(cov >= 8 ? "@" : cov >= 5 ? "0" : "*");
+                        rgb[i * 3] = fresh ? 240 : (GOLD[0] + (1 - d) * 10) * k;
+                        rgb[i * 3 + 1] = fresh
+                            ? 240
+                            : (GOLD[1] + (1 - d) * 40) * k;
+                        rgb[i * 3 + 2] = fresh
+                            ? 240
+                            : (GOLD[2] + (1 - d) * 70) * k;
+                    }
+                }
+            }
+            function frame(t, built) {
+                ch.set(bgCh);
+                rgb.set(bgRgb);
+                zb.fill(-1e9);
+                for (const s of stars) {
+                    const g =
+                        235 * s.br * (0.65 + 0.35 * Math.sin(t * s.w + s.ph));
+                    ch[s.i] = s.ch;
+                    rgb[s.i * 3] = rgb[s.i * 3 + 1] = rgb[s.i * 3 + 2] = g;
+                }
+                drawSnow(t, built, false);
+                const ang = (SPIN_DEG * t * Math.PI) / 180,
+                    ca = Math.cos(ang),
+                    sa = Math.sin(ang);
+                const ct = Math.cos(TILT),
+                    st = Math.sin(TILT);
+                for (const p of P) {
+                    if (p[9] > built) continue;
+                    const kind = p[10];
+                    let x,
+                        z,
+                        y = p[1];
+                    x = p[0] * ca + p[2] * sa;
+                    z = -p[0] * sa + p[2] * ca;
+                    const ys = y * ct - z * st,
+                        depth = z * ct + y * st;
+                    const sx = Math.round(W / 2 + x * SCALE * 2.1),
+                        sy = Math.round(CY - ys * SCALE);
+                    if (sx < 0 || sx >= W || sy < 0 || sy >= H) continue;
+                    const i = sy * W + sx;
+                    if (depth < zb[i]) continue;
+                    zb[i] = depth;
+                    let br;
+                    if (kind !== TREE) br = 0.8 + 0.2 * Math.sin(t * 6 + p[11]);
+                    else {
+                        const nx = p[3] * ca + p[5] * sa,
+                            nz = -p[3] * sa + p[5] * ca;
+                        br =
+                            0.3 +
+                            0.7 *
+                                clamp(
+                                    nx * LIGHT[0] +
+                                        p[4] * LIGHT[1] +
+                                        nz * LIGHT[2],
+                                    0,
+                                    1,
+                                ) +
+                            p[12];
+                    }
+                    let r = p[6],
+                        g = p[7],
+                        b = p[8];
+                    if (built - p[9] < 0.022 && built < 1) {
+                        r = g = b = 240;
+                        br = 1;
+                    } // 방금 쌓인 줄은 하얗게
+                    const k = clamp(0.3 + 0.75 * br, 0, 1.05);
+                    ch[i] = RAMP.charCodeAt(
+                        clamp(Math.floor(br * RAMP.length), 0, RAMP.length - 1),
+                    );
+                    rgb[i * 3] = r * k;
+                    rgb[i * 3 + 1] = g * k;
+                    rgb[i * 3 + 2] = b * k;
+                }
+                drawStar(t, built);
+                drawSnow(t, built, true);
+            }
+
+            // ── 10. 화면에 출력 ──────────────────────────────────────────
+            const cv = document.getElementById("screen"),
+                ctx = cv.getContext("2d");
+            const FONT =
+                'ui-monospace, "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", monospace';
+            const $ = (id) => document.getElementById(id);
+            let cw = 8,
+                chH = 14,
+                fs = 13;
+            function resize() {
+                const dpr = Math.min(window.devicePixelRatio || 1, 3);
+                const cssW = cv.getBoundingClientRect().width || 560;
+                cw = Math.max(3, (cssW * dpr) / W);
+                fs = cw / 0.6; // 고정폭 글꼴의 가로:세로 ≈ 0.6
+                chH = cw * 1.72;
+                cv.width = Math.round(cw * W);
+                cv.height = Math.round(chH * H);
+                layoutCode();
+            }
+            function paint() {
+                ctx.fillStyle = "#0b0c11";
+                ctx.fillRect(0, 0, cv.width, cv.height);
+                ctx.font = `${fs}px ${FONT}`;
+                ctx.textBaseline = "top";
+                ctx.textAlign = "center";
+                let last = -1;
+                for (let i = 0; i < N; i++) {
+                    if (!ch[i]) continue;
+                    const r = Math.min(255, rgb[i * 3]) | 0,
+                        g = Math.min(255, rgb[i * 3 + 1]) | 0,
+                        b = Math.min(255, rgb[i * 3 + 2]) | 0;
+                    const key = (r << 16) | (g << 8) | b;
+                    if (key !== last) {
+                        ctx.fillStyle = `rgb(${r},${g},${b})`;
+                        last = key;
+                    }
+                    ctx.fillText(
+                        String.fromCharCode(ch[i]),
+                        ((i % W) + 0.5) * cw,
+                        ((i / W) | 0) * chH,
+                    );
+                }
+            }
+
+            // ── 11. 하단 코드 패널 — 트리가 지어지는 만큼 코드가 쏟아진다 ──
+            const SRC = String.raw`#!/usr/bin/env python3
+# art.py — 크리스마스트리 코드 아트
+# 터미널에서 조립되며 회전하는 아스키 크리스마스 트리
+import math
+import os
+import shutil
+import sys
+import time
+
+import numpy as np
+
+# ── 0. 기본 설정 ─────────────────────────────────────
+FPS, BUILD_SEC, HOLD_SEC = 30, 10.5, 4.0
+SPIN_DEG, TILT = 17.7, 0.22
+RAMP = ".:-=+*f%#0@"
+GREEN, LEAF, BROWN = (46, 170, 82), (120, 225, 135), (120, 78, 45)
+WHITE, SILVER, GOLD = (240, 240, 240), (200, 205, 215), (245, 190, 60)
+RED, BLUE, PINK = (220, 50, 50), (70, 120, 235), (255, 120, 170)
+WARM, PURPLE = (255, 225, 150), (130, 110, 220)
+TREE, GLOW = 0, 1
+S_TRUNK, S_TREE, S_STAR, S_BALL = 0.0, 0.02, 0.45, 0.52
+S_LIGHT, S_GIFT, S_SNOW = 0.62, 0.78, 0.90
+Y0, Y1, GROUND, TIERS = -1.0, 1.15, -1.2, 6
+TAU = math.tau
+rng = np.random.default_rng(1225)
+
+
+def radius(t):
+    # 층층이 톱니 모양
+    f = (t * TIERS) % 1
+    return (1.0 * (1 - t) + 0.03) * (1.09 - 0.20 * f)
+
+
+# ── 1. 점 구름 ───────────────────────────────────────
+class Cloud:
+    def __init__(self):
+        self.rows = []
+
+    def add(self, pos, normal, color, birth, kind=TREE):
+        phase = rng.uniform(0, TAU)
+        noise = rng.uniform(-0.08, 0.08)
+        self.rows.append((*pos, *normal, *color, birth, kind, phase, noise))
+
+    def array(self):
+        return np.array(self.rows, dtype=np.float32)
+
+
+def unit():
+    v = rng.normal(size=3)
+    return v / (np.linalg.norm(v) or 1.0)
+
+
+# ── 2. 나무 기둥 ─────────────────────────────────────
+def make_trunk(c):
+    for _ in range(300):
+        a, y = rng.uniform(0, TAU), rng.uniform(GROUND, Y0 + 0.05)
+        n = (math.cos(a), 0.0, math.sin(a))
+        c.add((0.13 * n[0], y, 0.13 * n[2]), n, BROWN, S_TRUNK)
+
+
+# ── 3. 잎 — 아래에서 위로 쌓인다 ─────────────────────
+def make_leaves(c):
+    nl = math.hypot(1, 0.45)
+    for _ in range(9000):
+        t, a = rng.random() ** 1.25, rng.uniform(0, TAU)
+        inner = rng.uniform(0.55, 1) if rng.random() < 0.25 else 1.0
+        r, f = radius(t) * inner, (t * TIERS) % 1
+        mix = min(max(1 - f * 1.6, 0), 1) * 0.75 * inner
+        k = 0.55 + 0.45 * inner
+        color = [(g * (1 - mix) + l * mix) * k for g, l in zip(GREEN, LEAF)]
+        pos = (r * math.cos(a), Y0 + (Y1 - Y0) * t, r * math.sin(a))
+        n = (math.cos(a) / nl, 0.45 / nl, math.sin(a) / nl)
+        c.add(pos, n, color, S_TREE + (S_STAR - S_TREE) * t)
+
+
+# ── 4. 오너먼트 ──────────────────────────────────────
+def make_balls(c, count=36):
+    palette = [RED, GOLD, SILVER, BLUE, RED]
+    for i in range(count):
+        t, a = rng.uniform(0.04, 0.9), rng.uniform(0, TAU)
+        rb = radius(t) * 0.98
+        center = np.array([rb * math.cos(a), Y0 + (Y1 - Y0) * t - 0.03, rb * math.sin(a)])
+        birth = S_BALL + (S_LIGHT - S_BALL) * i / count
+        for _ in range(70):
+            d = unit()
+            c.add(center + 0.075 * d, d, palette[i % len(palette)], birth)
+
+
+# ── 5. 전구 — 나선 ───────────────────────────────────
+def make_lights(c, count=170):
+    bulbs = [WARM, RED, GOLD, (120, 220, 255)]
+    for i in range(count):
+        t = 0.02 + 0.94 * i / (count - 1)
+        a, r = t * TAU * 7, radius(t) * 1.04
+        n = (math.cos(a), 0.0, math.sin(a))
+        pos = (r * n[0], Y0 + (Y1 - Y0) * t, r * n[2])
+        c.add(pos, n, bulbs[i % 4], S_LIGHT + (S_GIFT - S_LIGHT) * t, GLOW)
+
+
+# ── 6. 선물 상자 ─────────────────────────────────────
+GIFTS = [
+    (0.3, 1.25, 0.52, 0.42, RED, WHITE),
+    (1.4, 1.35, 0.44, 0.32, GOLD, RED),
+    (2.5, 1.20, 0.56, 0.38, WHITE, PINK),
+    (3.6, 1.35, 0.46, 0.44, (60, 150, 90), GOLD),
+    (4.6, 1.22, 0.42, 0.30, BLUE, SILVER),
+    (5.5, 1.38, 0.50, 0.36, GOLD, RED),
+]
+FACES = [(0, 1), (0, -1), (2, 1), (2, -1), (1, 1)]
+
+
+def make_gifts(c):
+    for gi, (ang, dist, wd, ht, box, rib) in enumerate(GIFTS):
+        tw = rng.uniform(0, math.pi)
+        ca, sa = math.cos(tw), math.sin(tw)
+        ox, oz = dist * math.cos(ang), dist * math.sin(ang)
+        b0 = S_GIFT + (S_SNOW - S_GIFT) * gi / len(GIFTS)
+        for _ in range(900):
+            p, n = rng.uniform(-0.5, 0.5, size=3), np.zeros(3)
+            axis, sign = FACES[rng.integers(5)]
+            p[axis], n[axis] = 0.5 * sign, sign
+            ribbon = abs(p[0]) < 0.11 or abs(p[2]) < 0.11
+            x, z = p[0] * wd, p[2] * wd
+            pos = (x * ca + z * sa + ox, GROUND + ht / 2 + p[1] * ht, -x * sa + z * ca + oz)
+            nrm = (n[0] * ca + n[2] * sa, n[1], -n[0] * sa + n[2] * ca)
+            c.add(pos, nrm, rib if ribbon else box, b0 + 0.02 * (p[1] + 0.5))
+        for _ in range(40):
+            # 리본 매듭
+            d = unit()
+            knot = (ox + d[0] * 0.09, GROUND + ht + 0.03 + d[1] * 0.05, oz + d[2] * 0.09)
+            c.add(knot, d, rib, b0 + 0.02)
+
+
+# ── 7. 배경 — 별 · 행성 · 눈밭 ───────────────────────
+def planet(ch, rgb, px, py, pr, color, ring=False, bands=0.0):
+    H, W = ch.shape
+    yy, xx = np.mgrid[0:H, 0:W]
+    dx, dy = (xx - px) / (2 * pr), (yy - py) / pr
+    d2 = dx * dx + dy * dy
+    nz = np.sqrt(np.clip(1 - d2, 0, None))
+    br = np.clip(0.25 + 0.75 * (-0.45 * dx - 0.5 * dy + 0.72 * nz), 0.12, 1)
+    br = br * (1 + bands * np.sin(dy * 9 + dx * 2))
+    body = d2 < 1
+    idx = np.clip((br * len(RAMP)).astype(int), 0, len(RAMP) - 1)
+    ch[body] = np.array(list(RAMP))[idx][body]
+    rgb[body] = np.clip(br, 0, 1)[body, None] * np.array(color)
+    if ring:
+        cr, sr = math.cos(-0.35), math.sin(-0.35)
+        u, v = dx * cr - dy * sr, (dx * sr + dy * cr) / 0.36
+        band = (np.hypot(u, v) > 1.35) & (np.hypot(u, v) < 1.85)
+        front, back = band & (v > 0), band & (v <= 0) & ~body
+        ch[front | back] = "0"
+        rgb[front], rgb[back] = WHITE, np.array(SILVER) * 0.75
+
+
+def make_background(W, H):
+    ch = np.full((H, W), " ", dtype="<U1")
+    rgb = np.zeros((H, W, 3), dtype=np.float32)
+    yy, xx = np.mgrid[0:H, 0:W]
+    neb = np.sin(xx * 0.11 + 1.3) * np.sin(yy * 0.33 + 2.1) + np.sin(xx * 0.045 + yy * 0.21)
+    neb = neb + 0.6 * np.sin(xx * 0.27 - yy * 0.4)
+    haze = (neb > 0.75) & (rng.random((H, W)) < 0.55) & (yy < H * 0.78)
+    ch[haze] = rng.choice([".", ":"], size=(H, W))[haze]
+    rgb[haze] = 62
+    planet(ch, rgb, W * 0.17, H * 0.16, H * 0.075, SILVER, ring=True)
+    planet(ch, rgb, W * 0.85, H * 0.17, H * 0.07, BLUE, bands=0.25)
+    planet(ch, rgb, W * 0.11, H * 0.52, H * 0.035, PURPLE)
+    gy = H * 0.5645 + 1.2 * H * 0.2545
+    e = ((xx - W / 2) / (W * 0.49)) ** 2 + ((yy - gy - 1) / (H * 0.085)) ** 2
+    field = (e < 1) & (rng.random((H, W)) < 0.93)
+    ch[field] = np.where(e < 0.45, ":", ".")[field]
+    rgb[field] = (95 - 45 * e)[field, None]
+    return ch, rgb
+
+
+def make_extras(W, H):
+    stars = [(int(rng.integers(int(H * 0.86))), int(rng.integers(W)), rng.uniform(0.35, 1),
+              rng.uniform(1, 5), rng.uniform(0, TAU), rng.choice(list("..·*")))
+             for _ in range(W * H // 45)]
+    snow = [(rng.uniform(0, W), rng.uniform(0, H), rng.uniform(3, 9), rng.uniform(0, TAU),
+             rng.choice(list("*.·")), rng.random() < 0.5, rng.uniform(S_SNOW, 1))
+            for _ in range(W * H // 60)]
+    return stars, snow
+
+
+# ── 8. 꼭대기 별 — 항상 정면 ─────────────────────────
+STAR_R, STAR_IN, CELL = 4.6, 1.95, 1 / 1.72
+
+
+def in_star(dx, dy):
+    rho, a = math.hypot(dx, dy), math.atan2(dx, -dy) + TAU
+    phi = abs((a + math.pi / 5) % (TAU / 5) - math.pi / 5)
+    s5, c5 = math.sin(math.pi / 5), math.cos(math.pi / 5)
+    edge = STAR_IN * s5 * math.cos(phi) + (STAR_R - STAR_IN * c5) * math.sin(phi)
+    return rho <= STAR_R * STAR_IN * s5 / edge
+
+
+def draw_star(ch, rgb, t, built, cx, cy=10.4):
+    if built < S_STAR:
+        return
+    grow = min(1.0, (built - S_STAR) / (S_BALL - S_STAR))
+    y_cut = cy + STAR_R - grow * 2 * STAR_R
+    pulse = 0.9 + 0.1 * math.sin(t * 3)
+    for y in range(int(cy - STAR_R - 1), int(cy + STAR_R + 2)):
+        if y < max(0, y_cut):
+            continue
+        for x in range(int(cx - STAR_R / CELL - 1), int(cx + STAR_R / CELL + 2)):
+            cov = sum(in_star((x + (k - 1) / 3 - cx) * CELL, y + (j - 1) / 3 - cy)
+                      for j in range(3) for k in range(3))
+            if cov < 3:
+                continue
+            d = math.hypot((x - cx) * CELL, y - cy) / STAR_R
+            ch[y, x] = "@" if cov >= 8 else "0" if cov >= 5 else "*"
+            rgb[y, x] = np.array(GOLD) * pulse * (1 - 0.25 * d) + (1 - d) * 30
+
+
+# ── 9. 한 프레임 그리기 ──────────────────────────────
+LIGHT = np.array([-0.45, 0.55, 0.7]) / math.hypot(0.45, 0.55, 0.7)
+
+
+def frame(t, built, W, H, bg, P, stars, snow):
+    ch, rgb = bg[0].copy(), bg[1].copy()
+    for y, x, br, w, ph, c in stars:
+        ch[y, x], rgb[y, x] = c, 235 * br * (0.65 + 0.35 * math.sin(t * w + ph))
+    scale, cy = H * 0.2545, H * 0.5645
+    ang = math.radians(SPIN_DEG * t)
+    ca, sa, ct, st = math.cos(ang), math.sin(ang), math.cos(TILT), math.sin(TILT)
+    p = P[P[:, 9] <= built]
+    x = p[:, 0] * ca + p[:, 2] * sa
+    z = -p[:, 0] * sa + p[:, 2] * ca
+    ys, depth = p[:, 1] * ct - z * st, z * ct + p[:, 1] * st
+    sx = np.rint(W / 2 + x * scale * 2.1).astype(int)
+    sy = np.rint(cy - ys * scale).astype(int)
+    nx, nz = p[:, 3] * ca + p[:, 5] * sa, -p[:, 3] * sa + p[:, 5] * ca
+    lit = 0.30 + 0.70 * np.clip(nx * LIGHT[0] + p[:, 4] * LIGHT[1] + nz * LIGHT[2], 0, 1) + p[:, 12]
+    br = np.where(p[:, 10] == TREE, lit, 0.80 + 0.20 * np.sin(t * 6 + p[:, 11]))
+    fresh = (built - p[:, 9] < 0.022) & (built < 1)
+    br = np.where(fresh, 1.0, br)
+    ok = (sx >= 0) & (sx < W) & (sy >= 0) & (sy < H)
+    for i in np.argsort(depth):
+        # 먼 점부터 칠해 가까운 점이 덮는다
+        if not ok[i]:
+            continue
+        k = min(max(0.30 + 0.75 * br[i], 0), 1.05)
+        ch[sy[i], sx[i]] = RAMP[min(max(int(br[i] * len(RAMP)), 0), len(RAMP) - 1)]
+        rgb[sy[i], sx[i]] = (240 if fresh[i] else p[i, 6:9]) * k
+    draw_star(ch, rgb, t, built, W / 2 - 0.5)
+    for sx0, sy0, v, ph, c, front, born in snow:
+        if born <= built:
+            fx = int(sx0 + 1.5 * math.sin(t * 1.3 + ph)) % W
+            ch[int((sy0 + v * t) % H), fx] = c
+            rgb[int((sy0 + v * t) % H), fx] = 235 if front else 170
+    return ch, rgb
+
+
+# ── 10. 터미널에 출력 ────────────────────────────────
+def width(s):
+    return sum(2 if ord(c) >= 0x1100 else 1 for c in s)
+
+
+def bar(left, right, W):
+    return left + " " * max(1, W - width(left) - width(right)) + right
+
+
+def paint(ch, rgb, head, foot):
+    key = (rgb[..., 0].astype(int) << 16) | (rgb[..., 1].astype(int) << 8) | rgb[..., 2].astype(int)
+    out = ["\x1b[H\x1b[38;2;130;130;140m", head, "\x1b[K\n"]
+    for row, krow in zip(ch.tolist(), key.tolist()):
+        last = -1
+        for c, k in zip(row, krow):
+            if c == " ":
+                out.append(" ")
+                continue
+            if k != last:
+                out.append(f"\x1b[38;2;{k >> 16};{(k >> 8) & 255};{k & 255}m")
+                last = k
+            out.append(c)
+        out.append("\x1b[0m\x1b[K\n")
+    out.append(foot)
+    sys.stdout.write("".join(out))
+    sys.stdout.flush()
+
+
+def main():
+    loop = "--loop" in sys.argv
+    if os.name == "nt":
+        os.system("")
+    size = shutil.get_terminal_size((96, 54))
+    W, H = max(40, min(size.columns - 1, 96)), max(20, min(size.lines - 4, 50))
+    cloud = Cloud()
+    for build in (make_trunk, make_leaves, make_balls, make_lights, make_gifts):
+        build(cloud)
+    P, bg = cloud.array(), make_background(W, H)
+    stars, snow = make_extras(W, H)
+
+    sys.stdout.write("\x1b[?1049h\x1b[?25l\x1b[2J")
+    t0 = time.time()
+    try:
+        while True:
+            t = time.time() - t0
+            if loop and t > BUILD_SEC + HOLD_SEC:
+                t0, t = time.time(), 0.0
+            built = min(1.0, t / BUILD_SEC)
+            ch, rgb = frame(t, built, W, H, bg, P, stars, snow)
+            state = "done" if built >= 1 else "running"
+            head = bar("art.py · 크리스마스트리 코드 아트", f"t {t:.2f}s", W)
+            foot = ("\x1b[38;2;110;110;120m"
+                    f"spin {SPIN_DEG * t % 360:.1f}°   built {built:.0%}\n"
+                    "\x1b[38;2;230;230;230m"
+                    + bar("$ python3 art.py", f"● {state} · {FPS} fps", W) + "\x1b[0m\x1b[K")
+            paint(ch, rgb, head, foot)
+            if not loop and t > BUILD_SEC + HOLD_SEC:
+                break
+            time.sleep(max(0.0, 1 / FPS - (time.time() - t0 - t)))
+    except KeyboardInterrupt:
+        pass
+    finally:
+        sys.stdout.write("\x1b[0m\x1b[?25h\x1b[?1049l")
+
+
+if __name__ == "__main__":
+    main()`.split("\n");
+            const codeEl = $("code");
+            const esc = (s) =>
+                s
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;");
+            const TOKEN =
+                /(#.*$)|([frb]?"(?:[^"\\]|\\.)*"?)|\b(def|class|return|for|in|if|else|elif|while|import|from|as|and|or|not|try|except|finally|pass|continue|break|lambda|True|False|None)\b|\b(0x[\da-fA-F]+|\d+\.?\d*)\b/g;
+            function hl(line) {
+                let out = "",
+                    last = 0,
+                    m;
+                TOKEN.lastIndex = 0;
+                while ((m = TOKEN.exec(line))) {
+                    if (!m[0]) {
+                        TOKEN.lastIndex++;
+                        continue;
+                    }
+                    out += esc(line.slice(last, m.index));
+                    out += `<span class="${m[1] ? "c" : m[2] ? "s" : m[3] ? "k" : "n"}">${esc(m[0])}</span>`;
+                    last = m.index + m[0].length;
+                }
+                return out + esc(line.slice(last));
+            }
+            const HL = SRC.map(hl);
+            let rows = 10,
+                codeKey = "";
+            function layoutCode() {
+                const probe = document.createElement("div");
+                probe.className = "ln";
+                probe.textContent = " ";
+                codeEl.replaceChildren(probe);
+                const lh = probe.getBoundingClientRect().height || 17;
+                rows = Math.max(3, Math.floor(codeEl.clientHeight / lh));
+                codeEl.replaceChildren();
+                codeKey = "";
+            }
+            function drawCode(built) {
+                const pos = built * SRC.length,
+                    cur = Math.min(SRC.length, Math.floor(pos));
+                const line = SRC[cur] || "",
+                    typed = Math.floor((pos - cur) * (line.length + 1));
+                const key = cur + ":" + typed;
+                if (key === codeKey) return;
+                codeKey = key;
+                let html = "";
+                for (let i = Math.max(0, cur - rows + 1); i < cur; i++)
+                    html += `<div class="ln"><b>${i + 1}</b>${HL[i]}</div>`;
+                html += `<div class="ln cur"><b>${cur + 1}</b>${hl(line.slice(0, typed))}<span class="caret"></span></div>`;
+                codeEl.innerHTML = html;
+                $("lnNo").textContent = "Ln " + (cur + 1);
+            }
+            function drawStatus(t, built) {
+                $("clock").textContent = "t " + t.toFixed(2) + "s";
+                $("stat").textContent =
+                    "spin " +
+                    ((SPIN_DEG * t) % 360).toFixed(1) +
+                    "°   built " +
+                    Math.round(built * 100) +
+                    "%";
+                $("run").classList.toggle("done", built >= 1);
+                $("runTxt").textContent =
+                    (built >= 1 ? "done" : "running") + " · " + FPS + " fps";
+            }
+
+            // ── 12. 반복 실행 ────────────────────────────────────────────
+            let t0 = performance.now(),
+                lastDraw = 0;
+            function tick(now) {
+                requestAnimationFrame(tick);
+                if (now - lastDraw < 1000 / FPS - 2) return;
+                lastDraw = now;
+                let t = (now - t0) / 1000;
+                if (t > BUILD_SEC + HOLD_SEC) {
+                    t0 = now;
+                    t = 0;
+                } // 다 지으면 처음부터 다시
+                const built = Math.min(1, t / BUILD_SEC);
+                frame(t, built);
+                paint();
+                drawCode(built);
+                drawStatus(t, built);
+            }
+            resize();
+            window.addEventListener("resize", resize);
+            requestAnimationFrame(tick);
+        </script>
+    </body>
+</html>
