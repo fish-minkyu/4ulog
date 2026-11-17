@@ -22,7 +22,7 @@
 const TAPES = [
     {
         id: "coral",
-        name: "검정치마",
+        name: "sunset tape",
         image: "./image/cassettePlayer/tape-coral.webp",
         label: { text: "sunset tape", top: "18%", color: "#4a1710" },
         tracks: [
@@ -45,7 +45,7 @@ const TAPES = [
                 dur: 201.14,
             },
             {
-                title: "헤야",
+                title: "Heya",
                 artist: "검정치마",
                 src: "./music/Heya.m4a",
                 dur: 325.1,
@@ -66,7 +66,7 @@ const TAPES = [
     },
     {
         id: "blue",
-        name: "wave to earth",
+        name: "blue tape",
         image: "./image/cassettePlayer/tape-blue.webp",
         label: { text: "blue tape", top: "25%", color: "#1b2c8f" },
         tracks: [

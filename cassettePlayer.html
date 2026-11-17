@@ -23,6 +23,20 @@
                     height="1098"
                 />
                 <div class="tape-slot" id="tapeSlot"></div>
+                <!-- 액정: 재생 중인 곡 정보 -->
+                <div class="lcd" id="lcd">
+                    <div class="lcd-glass">
+                        <p class="lcd-line" aria-live="polite">
+                            <span class="lcd-title" id="lcdTitle">NO TAPE</span>
+                        </p>
+                        <p class="lcd-row">
+                            <span id="lcdState">STOP</span>
+                            <span id="lcdNo">--/--</span>
+                            <span id="lcdTime">0:00 / 0:00</span>
+                        </p>
+                        <div class="lcd-fill" id="lcdFill"></div>
+                    </div>
+                </div>
                 <div class="keys" id="keys">
                     <button
                         class="key"
@@ -56,29 +70,6 @@
                         aria-label="테이프 꺼내기"
                     ></button>
                 </div>
-            </section>
-
-            <!-- 지금 재생 중인 곡 -->
-            <section class="readout" aria-live="polite">
-                <div class="readout-row">
-                    <p class="now" id="nowTitle">테이프를 넣어 주세요</p>
-                    <p class="time" id="nowTime">0:00 / 0:00</p>
-                </div>
-                <div
-                    class="bar"
-                    id="bar"
-                    role="slider"
-                    tabindex="0"
-                    aria-label="재생 위치"
-                    aria-valuemin="0"
-                    aria-valuemax="100"
-                    aria-valuenow="0"
-                >
-                    <div class="bar-fill" id="barFill"></div>
-                </div>
-                <p class="hint" id="hint">
-                    ◀◀ ▶▶ 는 짧게 누르면 한 곡, 꾹 누르면 계속 넘어갑니다
-                </p>
             </section>
 
             <!-- 테이프 선반 -->

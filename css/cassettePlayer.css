@@ -1,4 +1,4 @@
-/* 레이아웃: 흰 린넨 천 위에 빨간 플레이어 하나. 아래로 재생 정보, 테이프 선반, 손글씨 곡 목록이 한 줄로 이어집니다.
+/* 레이아웃: 흰 린넨 천 위에 빨간 플레이어 하나. 곡 정보는 플레이어의 액정에 나오고, 아래로 테이프 선반과 손글씨 곡 목록이 한 줄로 이어집니다.
    밝은 한 가지 분위기로만 만들었습니다(다크 모드 없음). */
 :root {
     color-scheme: light;
@@ -8,6 +8,9 @@
     --ink: #1f1c1a; /* 글씨 */
     --ink-soft: #7c766d; /* 보조 글씨 */
     --red: #d3151b; /* 플레이어 빨강 */
+    --lcd: #a9b693; /* 액정 바탕 */
+    --lcd-hi: #c2cdac; /* 액정 위쪽 밝은 부분 */
+    --lcd-ink: #1b2417; /* 액정 글씨 */
     --font-display: "Archivo", "Helvetica Neue", Arial, sans-serif;
     --font-hand: "Gaegu", "Nanum Pen Script", "Apple SD Gothic Neo", cursive;
     --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
@@ -60,6 +63,7 @@ body {
     position: relative;
     width: 100%;
     aspect-ratio: 1380 / 1515;
+    container-type: inline-size;
     z-index: 2;
     filter: drop-shadow(0 14px 16px rgba(60, 40, 30, 0.28));
     user-select: none;
@@ -181,7 +185,7 @@ body {
     content: "";
     position: absolute;
     inset: 0;
-    background-image: url("../assets/player.webp");
+    background-image: url("../image/cassettePlayer/player.webp");
     background-size: var(--bg-size);
     background-position: var(--bg-pos);
     border-radius: inherit;
@@ -211,70 +215,88 @@ body {
     outline-offset: 2px;
 }
 
-/* ───── 재생 정보 ───── */
-.readout {
+/* ───── 액정 (창과 버튼 사이의 빨간 띠 위) ───── */
+.lcd {
+    position: absolute;
+    left: 7.25%;
+    width: 85.5%;
+    top: 58.42%;
+    height: 11.22%;
+    padding: 1.1cqw;
+    background: #0c0b0b;
+    border-radius: 1.3cqw;
+    box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.28),
+        0 -1px 0 rgba(0, 0, 0, 0.35);
+}
+.lcd-glass {
+    position: relative;
+    height: 100%;
+    padding: 0.7cqw 2.2cqw 1.5cqw;
     display: flex;
     flex-direction: column;
-    gap: 8px;
-}
-.readout-row {
-    display: flex;
-    align-items: baseline;
     justify-content: space-between;
-    gap: 12px;
-}
-.now {
-    margin: 0;
-    font-style: italic;
-    font-weight: 800;
-    font-size: 17px;
-    letter-spacing: 0.01em;
-    min-width: 0;
-    overflow-wrap: anywhere;
-}
-.time {
-    margin: 0;
+    overflow: hidden;
+    border-radius: 0.7cqw;
+    background: linear-gradient(var(--lcd-hi), var(--lcd));
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.4);
+    color: var(--lcd-ink);
     font-family: var(--font-mono);
-    font-size: 13px;
+    font-weight: 500;
     font-variant-numeric: tabular-nums;
-    color: var(--ink-soft);
+}
+.lcd-line {
+    margin: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    font-size: 3.5cqw;
+    line-height: 1.25;
+}
+.lcd-title {
+    display: inline-block;
     white-space: nowrap;
 }
-.bar {
-    height: 14px;
+.lcd-title.is-long {
+    animation: lcd-scroll var(--scroll-time, 8s) linear infinite alternate;
+}
+@keyframes lcd-scroll {
+    0%,
+    18% {
+        transform: translateX(0);
+    }
+    82%,
+    100% {
+        transform: translateX(var(--shift, 0px));
+    }
+}
+.lcd-row {
+    margin: 0;
     display: flex;
-    align-items: center;
-    cursor: pointer;
-    touch-action: none;
+    justify-content: space-between;
+    gap: 2cqw;
+    font-size: 2.65cqw;
+    line-height: 1.2;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
 }
-.bar {
-    position: relative;
-}
-.bar::before {
+.lcd-glass::after {
     content: "";
     position: absolute;
     left: 0;
     right: 0;
-    height: 4px;
-    border-radius: 2px;
-    background: var(--linen-shade);
+    bottom: 0;
+    height: 0.8cqw;
+    background: var(--lcd-ink);
+    opacity: 0.16;
 }
-.bar-fill {
-    position: relative;
-    height: 4px;
+.lcd-fill {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 0.8cqw;
     width: 0%;
-    border-radius: 2px;
-    background: var(--red);
-}
-.bar:focus-visible {
-    outline: 2px solid var(--ink);
-    outline-offset: 2px;
-}
-.hint {
-    margin: 0;
-    font-size: 12px;
-    color: var(--ink-soft);
-    font-weight: 600;
+    background: var(--lcd-ink);
+    opacity: 0.85;
 }
 
 /* ───── 선반 ───── */
@@ -420,6 +442,9 @@ body {
 @media (prefers-reduced-motion: reduce) {
     .tape .hub svg {
         animation-duration: 8s !important;
+    }
+    .lcd-title.is-long {
+        animation: none;
     }
     .key::before,
     .key::after,
