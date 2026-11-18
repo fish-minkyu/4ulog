@@ -62,6 +62,38 @@
         return `<svg viewBox="-50 -50 100 100" aria-hidden="true"><circle r="50" fill="#15110f"/>${teeth}<circle r="17" fill="#2f2c2a"/><circle r="6" fill="#a3a09a"/></svg>`;
     })();
 
+    /* 이름표(마스킹테이프). 그림이 있으면 그림을, 없으면 코드로 그린 테이프를 씁니다 */
+    let tagImageOk = false;
+    if (typeof TAG_IMAGE === "string" && TAG_IMAGE) {
+        const probe = new Image();
+        probe.onload = () => {
+            tagImageOk = true;
+            document
+                .querySelectorAll(".tape-tag")
+                .forEach((tag) => applyTagImage(tag));
+        };
+        probe.src = TAG_IMAGE;
+    }
+    function applyTagImage(tag) {
+        tag.classList.add("has-img");
+        tag.style.backgroundImage = 'url("' + TAG_IMAGE + '")';
+    }
+    function makeTag(info) {
+        const tag = document.createElement("span");
+        tag.className = "tape-tag";
+        tag.style.setProperty(
+            "--tilt",
+            (typeof info.tilt === "number" ? info.tilt : -2) + "deg",
+        );
+        if (info.color) tag.style.setProperty("--tag-ink", info.color);
+        const txt = document.createElement("span");
+        txt.className = "tape-tag-text";
+        txt.textContent = info.text;
+        tag.appendChild(txt);
+        if (tagImageOk) applyTagImage(tag);
+        return tag;
+    }
+
     function makeTape(t) {
         const el = document.createElement("div");
         el.className = "tape";
@@ -76,14 +108,7 @@
             h.innerHTML = HUB_SVG;
             el.appendChild(h);
         }
-        if (t.label && t.label.text) {
-            const p = document.createElement("p");
-            p.className = "tape-label";
-            p.textContent = t.label.text;
-            p.style.top = t.label.top || "22%";
-            p.style.color = t.label.color || "#222";
-            el.appendChild(p);
-        }
+        if (t.tag && t.tag.text) el.appendChild(makeTag(t.tag));
         return el;
     }
 
@@ -680,8 +705,10 @@
         spot.className = "shelf-spot";
         spot.appendChild(makeTape(t));
         const name = document.createElement("span");
+        /* 테이프 하단 이름 제거 
         name.className = "shelf-name";
         name.textContent = t.name;
+        */
         b.append(spot, name);
         b.addEventListener("click", () => chooseTape(t));
         shelf.appendChild(b);

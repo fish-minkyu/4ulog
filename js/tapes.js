@@ -16,15 +16,18 @@
    테이프 항목
    - name  : 선반과 화면에 보이는 테이프 이름
    - image : 테이프 그림
-   - label : 라벨 위에 손글씨로 올릴 글자. 그림에 이미 글씨가 있으면 text 를 "" 로 둡니다.
-             top 은 글자의 세로 위치(테이프 높이 기준), color 는 글자 색입니다.
+   - tag   : 테이프 라벨에 붙는 이름표(마스킹테이프).
+             text  이름표에 쓸 글자
+             color 글자 색 (생략하면 진한 먹색)
+             tilt  기울기, 도 단위 (생략하면 -2)
+             이름표를 떼려면 tag: null 로 두면 됩니다.
    ───────────────────────────────────────────────────────────── */
 const TAPES = [
     {
         id: "coral",
         name: "sunset tape",
         image: "./image/cassettePlayer/tape-coral.webp",
-        label: { text: "sunset tape", top: "18%", color: "#4a1710" },
+        tag: { text: "검정 치마", color: "#4a1710", tilt: -1 },
         tracks: [
             {
                 title: "EVERYTHING",
@@ -68,7 +71,7 @@ const TAPES = [
         id: "blue",
         name: "blue tape",
         image: "./image/cassettePlayer/tape-blue.webp",
-        label: { text: "blue tape", top: "25%", color: "#1b2c8f" },
+        tag: { text: "wave to earth", color: "#1b2c8f", tilt: 1.5 },
         tracks: [
             {
                 title: "love.",
@@ -112,7 +115,7 @@ const TAPES = [
         id: "pop",
         name: "pop songs",
         image: "./image/cassettePlayer/tape-pop.webp",
-        label: { text: "" },
+        tag: { text: "pop songs", tilt: -2 },
         tracks: [
             {
                 title: "Malibu Nights",
@@ -153,6 +156,9 @@ const TAPES = [
         ],
     },
 ];
+
+/* 이름표(마스킹테이프) 그림. 그림을 못 읽으면 코드로 그린 이름표가 대신 나옵니다 */
+const TAG_IMAGE = "assets/masking-tape.webp";
 
 /* 페이지를 열었을 때 미리 꽂혀 있을 테이프의 id. 빈 덱으로 시작하려면 null */
 const START_TAPE = "pop";

@@ -128,21 +128,64 @@ body {
     height: 100%;
     display: block;
 }
-.tape-label {
+/* 이름표(마스킹테이프): 테이프 라벨 위쪽 가운데에 붙습니다 */
+.tape-tag {
     position: absolute;
-    left: 9%;
-    right: 9%;
-    margin: 0;
-    text-align: center;
+    left: 50%;
+    top: 20.5%;
+    width: 58%;
+    height: 15.5%;
+    transform: translate(-50%, -50%) rotate(var(--tilt, -2deg));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 7%;
+    pointer-events: none;
+    /* 그림이 없을 때 쓰는 코드 테이프 */
+    background:
+        repeating-linear-gradient(
+            90deg,
+            rgba(120, 100, 70, 0.05) 0 1px,
+            transparent 1px 4px
+        ),
+        linear-gradient(
+            180deg,
+            rgba(255, 250, 236, 0.93),
+            rgba(240, 230, 207, 0.93)
+        );
+    clip-path: polygon(
+        0 4%,
+        2% 18%,
+        0 33%,
+        2.4% 50%,
+        0.4% 66%,
+        2% 82%,
+        0 96%,
+        100% 100%,
+        98% 84%,
+        100% 68%,
+        97.6% 52%,
+        99.6% 36%,
+        98% 18%,
+        100% 2%
+    );
+    filter: drop-shadow(0 0.4cqw 0.5cqw rgba(60, 40, 20, 0.28));
+}
+.tape-tag.has-img {
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-position: center;
+    clip-path: none;
+}
+.tape-tag-text {
     font-family: var(--font-hand);
     font-weight: 700;
-    font-size: 8.4cqw;
+    font-size: 8cqw;
     line-height: 1;
+    color: var(--tag-ink, #2a2420);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    transform: translateY(-50%) rotate(-1.2deg);
-    pointer-events: none;
 }
 
 @keyframes spin {
